@@ -867,7 +867,7 @@
                 } catch (error) {
                     console.error('Google API 錯誤:', error);
                     
-                    // 檢查是否為 API 未啟用的錯誤
+                    // 檢查不同類型的 API 錯誤
                     if (error.message.includes('has not been used') || error.message.includes('is disabled')) {
                         this.showMessage(`
                             ❌ Google Text-to-Speech API 尚未啟用！<br><br>
@@ -879,10 +879,53 @@
                             5. 將新的 API Key 貼到上方輸入框<br><br>
                             💡 <strong>提示：</strong>啟用 API 後可能需要等待幾分鐘才能使用
                         `, 'error');
+                    } else if (error.message.includes('blocked') || error.message.includes('PERMISSION_DENIED') || error.message.includes('API_KEY_SERVICE_BLOCKED')) {
+                        this.showMessage(`
+                            🚫 API Key 權限被拒絕！<br><br>
+                            <strong>可能的原因和解決方案：</strong><br>
+                            1. <strong>API 未啟用：</strong>請到 <a href="https://console.cloud.google.com/apis/library/texttospeech.googleapis.com" target="_blank" rel="noopener noreferrer">Google Cloud Console</a> 啟用 Text-to-Speech API<br>
+                            2. <strong>API Key 限制：</strong>檢查 <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer">API Key 設定</a> 是否有 IP 或網域限制<br>
+                            3. <strong>計費未啟用：</strong>到 <a href="https://console.cloud.google.com/billing" target="_blank" rel="noopener noreferrer">計費頁面</a> 啟用計費帳戶<br>
+                            4. <strong>配額不足：</strong>檢查 <a href="https://console.cloud.google.com/apis/api/texttospeech.googleapis.com/quotas" target="_blank" rel="noopener noreferrer">API 配額</a><br><br>
+                            💡 <strong>建議：</strong>切換到免費模式繼續使用，或重新建立一個新的 API Key
+                        `, 'error');
+                    } else if (error.message.includes('INVALID_ARGUMENT') || error.message.includes('400')) {
+                        this.showMessage(`
+                            ⚠️ API 請求參數錯誤！<br><br>
+                            <strong>可能的問題：</strong><br>
+                            • 文字內容格式不正確<br>
+                            • 語音參數設定有誤<br>
+                            • API Key 格式錯誤<br><br>
+                            💡 <strong>建議：</strong>切換到免費模式或檢查輸入內容
+                        `, 'error');
+                    } else if (error.message.includes('UNAUTHENTICATED') || error.message.includes('401')) {
+                        this.showMessage(`
+                            🔑 API Key 驗證失敗！<br><br>
+                            <strong>請檢查：</strong><br>
+                            • API Key 是否正確複製<br>
+                            • API Key 是否已過期<br>
+                            • 是否使用了正確的 Google Cloud 專案<br><br>
+                            💡 <strong>建議：</strong>重新產生一個新的 API Key
+                        `, 'error');
                     } else {
-                        // 其他 API 錯誤，嘗試使用備用方案
-                        this.showMessage(`Google API 失敗: ${error.message}，嘗試使用瀏覽器內建語音...`, 'error');
-                        await this.generateSpeechFallback();
+                        // 其他 API 錯誤，自動切換到免費模式
+                        this.showMessage(`
+                            ❌ Google API 發生錯誤：${error.message}<br><br>
+                            🔄 <strong>自動切換到免費模式...</strong><br>
+                            免費模式使用瀏覽器內建語音，完全免費且無需設定！
+                        `, 'error');
+                        
+                        // 延遲 2 秒後自動切換並重新生成
+                        setTimeout(async () => {
+                            this.switchToFreeMode();
+                            this.showMessage('已切換到免費模式，正在重新生成語音...', 'loading');
+                            try {
+                                await this.generateSpeechWithBrowser();
+                            } catch (browserError) {
+                                this.showMessage(`瀏覽器語音也失敗了：${browserError.message}`, 'error');
+                                await this.generateSpeechFallback();
+                            }
+                        }, 2000);
                     }
                 }
             }
@@ -896,6 +939,9 @@
                 
                 // 停止任何正在播放的語音
                 speechSynthesis.cancel();
+                
+                // 等待語音列表載入完成
+                await this.waitForVoices();
                 
                 // 建立語音腳本
                 this.speechQueue = [];
@@ -913,6 +959,9 @@
                         // 嘗試設定指定的語音
                         const voices = speechSynthesis.getVoices();
                         let selectedVoice = null;
+                        
+                        console.log('可用語音數量:', voices.length);
+                        console.log('前5個語音:', voices.slice(0, 5).map(v => v.name));
                         
                         if (item.voice === 'native') {
                             selectedVoice = voices.find(voice => voice.lang.includes('en-US')) || voices[0];
@@ -963,6 +1012,46 @@
                 // 顯示結果
                 this.displayResults();
                 this.showMessage('🎵 免費語音已準備完成！點擊播放按鈕開始朗讀。', 'success');
+            }
+            
+            // 等待語音列表載入的輔助函數
+            waitForVoices() {
+                return new Promise((resolve) => {
+                    const voices = speechSynthesis.getVoices();
+                    if (voices.length > 0) {
+                        console.log('語音列表已載入，共', voices.length, '個語音');
+                        resolve();
+                        return;
+                    }
+                    
+                    console.log('等待語音列表載入...');
+                    let attempts = 0;
+                    const maxAttempts = 10;
+                    
+                    const checkVoices = () => {
+                        const voices = speechSynthesis.getVoices();
+                        attempts++;
+                        
+                        if (voices.length > 0) {
+                            console.log('語音列表載入完成，共', voices.length, '個語音');
+                            resolve();
+                        } else if (attempts >= maxAttempts) {
+                            console.log('語音列表載入超時，使用預設設定');
+                            resolve();
+                        } else {
+                            setTimeout(checkVoices, 100);
+                        }
+                    };
+                    
+                    // 監聽語音變更事件
+                    speechSynthesis.addEventListener('voiceschanged', () => {
+                        console.log('語音列表已更新');
+                        resolve();
+                    }, { once: true });
+                    
+                    // 開始檢查
+                    setTimeout(checkVoices, 100);
+                });
             }
             
             async playBrowserSpeech() {
@@ -1125,5 +1214,5 @@
             generator = new ScriptBasedSpeechGenerator();
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994efeede6d24a3c',t:'MTc2MTUzNDU3OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994f0bc9257f4a3c',t:'MTc2MTUzNTEwNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
