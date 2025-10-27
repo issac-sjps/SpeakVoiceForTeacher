@@ -962,28 +962,31 @@
             }
             
             async generateSilence(duration) {
-                // 使用 Google API 生成 SSML 暫停
+                // 生成靜音的 MP3 音頻數據
                 try {
+                    // 使用簡單的靜音文字來生成暫停效果
+                    const silenceText = '.'; // 使用句號作為最短的音頻
+                    
                     const response = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${this.apiKey}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            input: { 
-                                ssml: `<speak><break time="${duration}s"/></speak>`
-                            },
+                            input: { text: silenceText },
                             voice: { 
                                 languageCode: 'en-US', 
                                 name: 'en-US-Journey-D' 
                             },
                             audioConfig: { 
-                                audioEncoding: 'MP3' 
+                                audioEncoding: 'MP3',
+                                speakingRate: 0.25, // 極慢的語速
+                                volumeGainDb: -96.0  // 極低的音量
                             }
                         })
                     });
                     
                     if (!response.ok) {
-                        console.warn('SSML 暫停失敗，使用替代方案');
-                        return new Uint8Array(Math.floor(duration * 1000));
+                        console.warn('靜音音頻生成失敗，使用本地生成');
+                        return this.generateLocalSilence(duration);
                     }
                     
                     const data = await response.json();
@@ -995,9 +998,29 @@
                     
                     return audioArray;
                 } catch (error) {
-                    console.warn('暫停生成失敗，使用替代方案:', error);
-                    return new Uint8Array(Math.floor(duration * 1000));
+                    console.warn('暫停生成失敗，使用本地生成:', error);
+                    return this.generateLocalSilence(duration);
                 }
+            }
+            
+            generateLocalSilence(duration) {
+                // 生成本地靜音 MP3 數據 (簡化版)
+                // 這是一個基本的 MP3 靜音幀結構
+                const frameSize = Math.floor(duration * 38.28); // 大約每秒38.28幀
+                const silenceFrame = new Uint8Array([
+                    0xFF, 0xFB, 0x90, 0x00, // MP3 header
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+                ]);
+                
+                const totalSize = frameSize * silenceFrame.length;
+                const silenceData = new Uint8Array(totalSize);
+                
+                for (let i = 0; i < frameSize; i++) {
+                    silenceData.set(silenceFrame, i * silenceFrame.length);
+                }
+                
+                return silenceData;
             }
             
             showResults() {
@@ -1069,5 +1092,5 @@
             speechGen = new SpeechGenerator();
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994f8a4f20fe4a15',t:'MTc2MTU0MDI4OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994f93f230144a15',t:'MTc2MTU0MDY4My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
