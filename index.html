@@ -280,6 +280,7 @@
             font-size: 16px;
             margin-bottom: 15px;
             resize: vertical;
+            box-sizing: border-box;
         }
         
         .voice-select {
@@ -288,6 +289,7 @@
             border: 2px solid #e1e5e9;
             border-radius: 8px;
             font-size: 14px;
+            box-sizing: border-box;
         }
         
         .pause-controls {
@@ -1194,40 +1196,61 @@
                         console.log('可用語音數量:', voices.length);
                         console.log('前5個語音:', voices.slice(0, 5).map(v => `${v.name} (${v.lang})`));
                         
-                        // 根據語音名稱設定語言和語音
+                        // 根據語音名稱設定語言和語音 - 改進版本
                         if (item.voice === 'native') {
+                            // 原生語音：優先選擇英語
                             selectedVoice = voices.find(voice => 
-                                voice.lang.includes('zh') || 
-                                voice.lang.includes('en')
+                                voice.lang.startsWith('en-US') || voice.lang.startsWith('en')
+                            ) || voices.find(voice => 
+                                voice.lang.includes('zh-TW') || voice.lang.includes('zh')
                             ) || voices[0];
-                            utterance.lang = selectedVoice ? selectedVoice.lang : 'zh-TW';
-                        } else if (item.voice.includes('Chinese (Taiwan)') || item.voice.includes('臺灣') || item.voice.includes('台灣') || item.voice.startsWith('cmn-TW')) {
+                            utterance.lang = selectedVoice ? selectedVoice.lang : 'en-US';
+                            
+                        } else if (item.voice.includes('Chinese (Taiwan)') || item.voice.includes('臺灣') || item.voice.includes('台灣') || item.voice.includes('Hanhan') || item.voice.includes('Zhiwei')) {
+                            // 台灣中文語音
                             selectedVoice = voices.find(voice => 
                                 voice.name.includes('Hanhan') || 
                                 voice.name.includes('Zhiwei') ||
-                                voice.lang.includes('zh-TW') ||
-                                voice.lang.includes('zh-Hant')
+                                (voice.lang.includes('zh-TW') || voice.lang.includes('zh-Hant'))
                             ) || voices.find(voice => voice.lang.includes('zh'));
                             utterance.lang = 'zh-TW';
-                        } else if (item.voice.includes('English')) {
+                            
+                        } else if (item.voice.includes('English') || item.voice.includes('Zira') || item.voice.includes('David') || item.voice.includes('US English')) {
+                            // 英語語音
                             selectedVoice = voices.find(voice => 
                                 voice.name.includes('Zira') || 
                                 voice.name.includes('David') ||
-                                voice.lang.includes('en-US')
-                            ) || voices.find(voice => voice.lang.includes('en'));
+                                voice.lang.startsWith('en-US')
+                            ) || voices.find(voice => voice.lang.startsWith('en'));
                             utterance.lang = 'en-US';
+                            
                         } else {
                             // 嘗試直接匹配語音名稱
                             selectedVoice = voices.find(voice => 
                                 voice.name.includes(item.voice) || 
                                 voice.name === item.voice
                             );
-                            if (!selectedVoice) {
-                                // 使用預設語音
-                                selectedVoice = voices.find(voice => voice.default) || voices[0];
-                                utterance.lang = selectedVoice ? selectedVoice.lang : 'en-US';
-                            } else {
+                            
+                            if (selectedVoice) {
                                 utterance.lang = selectedVoice.lang;
+                            } else {
+                                // 根據文字內容智能判斷語言
+                                const hasChineseChars = /[\u4e00-\u9fff]/.test(item.text);
+                                const hasEnglishWords = /[a-zA-Z]/.test(item.text);
+                                
+                                if (hasChineseChars && !hasEnglishWords) {
+                                    // 純中文
+                                    selectedVoice = voices.find(voice => 
+                                        voice.lang.includes('zh-TW') || voice.lang.includes('zh')
+                                    ) || voices[0];
+                                    utterance.lang = 'zh-TW';
+                                } else {
+                                    // 英文或混合文字，使用英語
+                                    selectedVoice = voices.find(voice => 
+                                        voice.lang.startsWith('en-US') || voice.lang.startsWith('en')
+                                    ) || voices[0];
+                                    utterance.lang = 'en-US';
+                                }
                             }
                         }
                         
@@ -1478,11 +1501,35 @@
                         if (item.type === 'speech') {
                             // 創建新的語音實例以避免重複使用問題
                             const utterance = new SpeechSynthesisUtterance(item.text);
-                            utterance.voice = item.utterance.voice;
-                            utterance.lang = item.utterance.lang;
-                            utterance.rate = item.utterance.rate;
-                            utterance.pitch = item.utterance.pitch;
-                            utterance.volume = item.utterance.volume;
+                            
+                            // 重新確認語音和語言設定
+                            const voices = speechSynthesis.getVoices();
+                            let correctVoice = item.utterance.voice;
+                            let correctLang = item.utterance.lang;
+                            
+                            // 如果原始語音不存在，重新選擇
+                            if (correctVoice && !voices.find(v => v.name === correctVoice.name)) {
+                                console.log('原始語音不存在，重新選擇:', correctVoice.name);
+                                
+                                // 根據語言代碼重新選擇語音
+                                if (correctLang.startsWith('zh')) {
+                                    correctVoice = voices.find(voice => 
+                                        voice.lang.includes('zh-TW') || voice.lang.includes('zh')
+                                    ) || voices[0];
+                                    correctLang = 'zh-TW';
+                                } else if (correctLang.startsWith('en')) {
+                                    correctVoice = voices.find(voice => 
+                                        voice.lang.startsWith('en-US') || voice.lang.startsWith('en')
+                                    ) || voices[0];
+                                    correctLang = 'en-US';
+                                }
+                            }
+                            
+                            utterance.voice = correctVoice;
+                            utterance.lang = correctLang;
+                            utterance.rate = item.utterance.rate || 0.9;
+                            utterance.pitch = item.utterance.pitch || 1.0;
+                            utterance.volume = item.utterance.volume || 1.0;
                             
                             utterance.onstart = () => {
                                 console.log('開始朗讀:', item.text.substring(0, 20) + '...');
@@ -1490,7 +1537,15 @@
                             
                             utterance.onend = () => {
                                 console.log('朗讀完成:', item.text.substring(0, 20) + '...');
-                                setTimeout(playNext, 200); // 稍長的間隔
+                                // 清理語音合成狀態，確保下一段語音正確
+                                speechSynthesis.cancel();
+                                setTimeout(() => {
+                                    // 確保語音合成完全停止後再繼續
+                                    if (speechSynthesis.speaking) {
+                                        speechSynthesis.cancel();
+                                    }
+                                    setTimeout(playNext, 100);
+                                }, 300);
                             };
                             
                             utterance.onerror = (error) => {
@@ -1745,5 +1800,5 @@
             generator = new ScriptBasedSpeechGenerator();
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994f58c3e6cc4a3c',t:'MTc2MTUzODI1OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994f638ae1a94a3c',t:'MTc2MTUzODcwMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
