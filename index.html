@@ -1084,21 +1084,34 @@
                         `, 'error');
                     } else if (error.message.includes('blocked') || error.message.includes('PERMISSION_DENIED') || error.message.includes('API_KEY_SERVICE_BLOCKED')) {
                         this.showMessage(`
-                            🚫 <strong>API 服務被阻擋！</strong><br><br>
-                            根據錯誤代碼，您的 Google Cloud 專案中 Text-to-Speech API 被阻擋了。<br><br>
+                            🚫 <strong>API 服務被阻擋！(錯誤代碼: 403)</strong><br><br>
+                            您的 Google Cloud 專案中 Text-to-Speech API 服務被阻擋。這通常是因為：<br><br>
                             
-                            <strong>🔧 解決方案：</strong><br>
-                            1. <strong>啟用 API：</strong>前往 <a href="https://console.cloud.google.com/apis/library/texttospeech.googleapis.com" target="_blank" rel="noopener noreferrer" style="color: #007bff; font-weight: bold;">Google Cloud Console - Text-to-Speech API</a><br>
-                            2. <strong>點擊「啟用」按鈕</strong>（如果顯示已啟用，請先停用再重新啟用）<br>
-                            3. <strong>設定計費：</strong>到 <a href="https://console.cloud.google.com/billing" target="_blank" rel="noopener noreferrer" style="color: #007bff; font-weight: bold;">計費頁面</a> 確保已啟用計費帳戶<br>
-                            4. <strong>檢查配額：</strong>到 <a href="https://console.cloud.google.com/iam-admin/quotas" target="_blank" rel="noopener noreferrer" style="color: #007bff; font-weight: bold;">配額頁面</a> 確認 Text-to-Speech 配額<br><br>
+                            <strong>🔧 主要解決方案：</strong><br>
+                            1. <strong>啟用計費帳戶：</strong>前往 <a href="https://console.cloud.google.com/billing" target="_blank" rel="noopener noreferrer" style="color: #007bff; font-weight: bold;">Google Cloud 計費頁面</a><br>
+                            &nbsp;&nbsp;&nbsp;• 新專案必須啟用計費才能使用 Text-to-Speech API<br>
+                            &nbsp;&nbsp;&nbsp;• 即使在免費額度內也需要綁定信用卡<br><br>
                             
-                            <strong>⚠️ 常見問題：</strong><br>
-                            • 新建立的 Google Cloud 專案需要啟用計費才能使用 API<br>
-                            • 免費試用額度用完後需要升級到付費帳戶<br>
-                            • API Key 可能有地區或服務限制<br><br>
+                            2. <strong>重新啟用 API：</strong>前往 <a href="https://console.cloud.google.com/apis/library/texttospeech.googleapis.com" target="_blank" rel="noopener noreferrer" style="color: #007bff; font-weight: bold;">Text-to-Speech API 頁面</a><br>
+                            &nbsp;&nbsp;&nbsp;• 如果顯示「已啟用」，請先停用再重新啟用<br>
+                            &nbsp;&nbsp;&nbsp;• 等待 2-5 分鐘讓設定生效<br><br>
                             
-                            🔄 <strong>或者您可以手動切換到免費模式使用瀏覽器內建語音</strong>
+                            3. <strong>檢查專案狀態：</strong>確認您的 Google Cloud 專案：<br>
+                            &nbsp;&nbsp;&nbsp;• 專案 ID: projects/10081671779<br>
+                            &nbsp;&nbsp;&nbsp;• 專案是否處於正常狀態<br>
+                            &nbsp;&nbsp;&nbsp;• 是否有足夠的配額<br><br>
+                            
+                            4. <strong>重新建立 API Key：</strong>到 <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" style="color: #007bff; font-weight: bold;">憑證頁面</a><br>
+                            &nbsp;&nbsp;&nbsp;• 刪除舊的 API Key<br>
+                            &nbsp;&nbsp;&nbsp;• 建立新的 API Key<br>
+                            &nbsp;&nbsp;&nbsp;• 確保 API Key 有正確的權限<br><br>
+                            
+                            <strong>⚠️ 重要提醒：</strong><br>
+                            • Google Cloud 的 Text-to-Speech API 需要啟用計費帳戶<br>
+                            • 每月前 100 萬字元免費，超過才收費<br>
+                            • 設定變更可能需要幾分鐘才生效<br><br>
+                            
+                            🔄 <strong>立即解決方案：手動切換到免費模式使用瀏覽器內建語音</strong>
                         `, 'error');
                     } else if (error.message.includes('API key not valid') || error.message.includes('INVALID_ARGUMENT') || error.message.includes('400')) {
                         this.showMessage(`
@@ -1814,5 +1827,5 @@
             generator = new ScriptBasedSpeechGenerator();
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994f301fa29b4a3c',t:'MTc2MTUzNjU5NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994f36fa832f4a3c',t:'MTc2MTUzNjg3NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
