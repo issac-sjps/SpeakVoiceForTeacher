@@ -607,9 +607,10 @@
                                 <li>✅ 完全免費，無需註冊</li>
                                 <li>✅ 支援多種語音選項</li>
                                 <li>✅ 即時生成，無需等待</li>
+                                <li>✅ 可下載音頻檔案 (WebM 格式)</li>
                                 <li>✅ 可下載詳細腳本文字檔</li>
                                 <li>⚠️ 音質較基本</li>
-                                <li>⚠️ 無法下載 MP3 音頻檔</li>
+                                <li>⚠️ 音頻格式為 WebM (非 MP3)</li>
                             </ul>
                         </div>
                     `;
@@ -1263,9 +1264,12 @@
                     onerror: null
                 };
                 
+                // 生成 MP3 檔案
+                await this.generateMP3FromBrowserSpeech();
+                
                 // 顯示結果
                 this.displayResults();
-                this.showMessage('🎵 免費語音已準備完成！點擊播放按鈕開始朗讀。', 'success');
+                this.showMessage('🎵 免費語音已準備完成！您可以播放試聽或下載 MP3 檔案。', 'success');
             }
             
             // 等待語音列表載入的輔助函數
@@ -1305,6 +1309,101 @@
                     
                     // 開始檢查
                     setTimeout(checkVoices, 100);
+                });
+            }
+            
+            async generateMP3FromBrowserSpeech() {
+                try {
+                    console.log('開始錄製瀏覽器語音為 MP3...');
+                    
+                    // 建立音頻上下文
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const destination = audioContext.createMediaStreamDestination();
+                    
+                    // 建立 MediaRecorder
+                    const mediaRecorder = new MediaRecorder(destination.stream, {
+                        mimeType: 'audio/webm;codecs=opus'
+                    });
+                    
+                    const audioChunks = [];
+                    
+                    mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                            audioChunks.push(event.data);
+                        }
+                    };
+                    
+                    // 開始錄製
+                    mediaRecorder.start();
+                    
+                    // 播放並錄製語音
+                    await this.playAndRecordBrowserSpeech(audioContext, destination);
+                    
+                    // 停止錄製
+                    mediaRecorder.stop();
+                    
+                    // 等待錄製完成
+                    await new Promise((resolve) => {
+                        mediaRecorder.onstop = () => {
+                            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                            this.currentBlob = audioBlob;
+                            console.log('MP3 錄製完成，檔案大小:', audioBlob.size, 'bytes');
+                            resolve();
+                        };
+                    });
+                    
+                    // 關閉音頻上下文
+                    audioContext.close();
+                    
+                } catch (error) {
+                    console.error('MP3 生成錯誤:', error);
+                    // 如果錄製失敗，仍然允許播放
+                    this.showMessage('MP3 錄製功能不可用，但您仍可以播放語音', 'error');
+                }
+            }
+            
+            async playAndRecordBrowserSpeech(audioContext, destination) {
+                return new Promise((resolve, reject) => {
+                    let currentIndex = 0;
+                    
+                    const playNext = () => {
+                        if (currentIndex >= this.speechQueue.length) {
+                            // 等待一秒後結束錄製
+                            setTimeout(() => {
+                                resolve();
+                            }, 1000);
+                            return;
+                        }
+                        
+                        const item = this.speechQueue[currentIndex];
+                        currentIndex++;
+                        
+                        if (item.type === 'speech') {
+                            // 建立新的語音實例用於錄製
+                            const utterance = new SpeechSynthesisUtterance(item.text);
+                            utterance.voice = item.utterance.voice;
+                            utterance.lang = item.utterance.lang;
+                            utterance.rate = item.utterance.rate;
+                            utterance.pitch = item.utterance.pitch;
+                            utterance.volume = item.utterance.volume;
+                            
+                            utterance.onend = () => {
+                                setTimeout(playNext, 100);
+                            };
+                            
+                            utterance.onerror = (error) => {
+                                console.error('錄製語音播放錯誤:', error);
+                                setTimeout(playNext, 100); // 繼續下一個
+                            };
+                            
+                            speechSynthesis.speak(utterance);
+                            
+                        } else if (item.type === 'pause') {
+                            setTimeout(playNext, item.duration);
+                        }
+                    };
+                    
+                    playNext();
                 });
             }
             
@@ -1417,11 +1516,29 @@
             }
             
             downloadAudio() {
-                if (this.isPremiumMode && this.currentBlob) {
+                if (this.currentBlob) {
                     const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-                    const isMP3 = this.currentBlob.type === 'audio/mpeg';
-                    const extension = isMP3 ? 'mp3' : 'txt';
-                    const fileName = `語音腳本_${timestamp}.${extension}`;
+                    let fileName, message;
+                    
+                    if (this.isPremiumMode) {
+                        // 高品質模式：下載 MP3
+                        const isMP3 = this.currentBlob.type === 'audio/mpeg';
+                        const extension = isMP3 ? 'mp3' : 'txt';
+                        fileName = `語音腳本_高品質_${timestamp}.${extension}`;
+                        message = isMP3 
+                            ? '🎵 高品質 MP3 檔案下載開始！這是您的完整語音腳本檔案。'
+                            : '📄 文本檔案下載開始！如需 MP3 檔案，請設定 Google Cloud API Key。';
+                    } else {
+                        // 免費模式：下載錄製的音頻檔案
+                        const isAudio = this.currentBlob.type.startsWith('audio/');
+                        if (isAudio) {
+                            fileName = `語音腳本_免費版_${timestamp}.webm`;
+                            message = '🎵 音頻檔案下載開始！這是使用瀏覽器語音錄製的檔案。';
+                        } else {
+                            fileName = `語音腳本_免費版_${timestamp}.txt`;
+                            message = '📄 文本檔案下載開始！';
+                        }
+                    }
                     
                     const url = URL.createObjectURL(this.currentBlob);
                     const a = document.createElement('a');
@@ -1432,13 +1549,10 @@
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
                     
-                    const message = isMP3 
-                        ? '🎵 MP3 檔案下載開始！這是您的完整語音腳本檔案。'
-                        : '📄 文本檔案下載開始！如需 MP3 檔案，請設定 Google Cloud API Key。';
-                    
                     this.showMessage(message, 'success');
+                    
                 } else if (!this.isPremiumMode && this.scriptItems.length > 0) {
-                    // 免費模式：生成腳本文字檔案
+                    // 備用方案：生成腳本文字檔案
                     this.generateScriptTextFile();
                 } else {
                     this.showMessage('請先生成語音檔案', 'error');
@@ -1531,5 +1645,5 @@
             generator = new ScriptBasedSpeechGenerator();
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994f21af660d4a3c',t:'MTc2MTUzNjAwMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994f285423e94a3c',t:'MTc2MTUzNjI3NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
