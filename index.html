@@ -340,8 +340,11 @@
                             style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 16px;"
                         >
                         <small style="color: #666; display: block; margin-top: 5px;">
-                            請到 <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a> 取得免費 API Key
-                            <br>💾 您的 API Key 會自動儲存在這台電腦上，下次開啟會自動載入
+                            <strong>📋 設定步驟：</strong><br>
+                            1. 到 <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer">Google Cloud Console</a> 建立專案<br>
+                            2. 啟用 <a href="https://console.cloud.google.com/apis/library/texttospeech.googleapis.com" target="_blank" rel="noopener noreferrer">Text-to-Speech API</a><br>
+                            3. 到 <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer">憑證頁面</a> 建立 API Key<br>
+                            💾 您的 API Key 會自動儲存在這台電腦上，下次開啟會自動載入
                         </small>
                     </div>
                 </div>
@@ -700,9 +703,24 @@
                     
                 } catch (error) {
                     console.error('Google API 錯誤:', error);
-                    // 如果 API 失敗，回退到瀏覽器內建語音
-                    this.showMessage(`Google API 失敗: ${error.message}，嘗試使用瀏覽器內建語音...`, 'error');
-                    await this.generateSpeechFallback();
+                    
+                    // 檢查是否為 API 未啟用的錯誤
+                    if (error.message.includes('has not been used') || error.message.includes('is disabled')) {
+                        this.showMessage(`
+                            ❌ Google Text-to-Speech API 尚未啟用！<br><br>
+                            <strong>請按照以下步驟設定：</strong><br>
+                            1. 前往 <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer">Google Cloud Console</a><br>
+                            2. 選擇或建立一個專案<br>
+                            3. 啟用 <a href="https://console.cloud.google.com/apis/library/texttospeech.googleapis.com" target="_blank" rel="noopener noreferrer">Text-to-Speech API</a><br>
+                            4. 到 <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer">憑證頁面</a> 建立 API Key<br>
+                            5. 將新的 API Key 貼到上方輸入框<br><br>
+                            💡 <strong>提示：</strong>啟用 API 後可能需要等待幾分鐘才能使用
+                        `, 'error');
+                    } else {
+                        // 其他 API 錯誤，嘗試使用備用方案
+                        this.showMessage(`Google API 失敗: ${error.message}，嘗試使用瀏覽器內建語音...`, 'error');
+                        await this.generateSpeechFallback();
+                    }
                 }
             }
             
@@ -785,10 +803,11 @@
             showMessage(message, type) {
                 this.statusMessage.innerHTML = `<div class="${type}">${message}</div>`;
                 
-                if (type === 'success' || type === 'error') {
+                // API 設定錯誤訊息不自動消失，其他訊息 8 秒後消失
+                if (type === 'success' || (type === 'error' && !message.includes('API 尚未啟用'))) {
                     setTimeout(() => {
                         this.statusMessage.innerHTML = '';
-                    }, 5000);
+                    }, 8000);
                 }
             }
         }
@@ -805,5 +824,5 @@
             generator = new ScriptBasedSpeechGenerator();
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994e9162a1a64a3c',t:'MTc2MTUzMDA5Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994e97d661864a3c',t:'MTc2MTUzMDM1Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
