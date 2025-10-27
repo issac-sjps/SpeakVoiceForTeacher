@@ -881,13 +881,22 @@
                         `, 'error');
                     } else if (error.message.includes('blocked') || error.message.includes('PERMISSION_DENIED') || error.message.includes('API_KEY_SERVICE_BLOCKED')) {
                         this.showMessage(`
-                            🚫 API Key 權限被拒絕！<br><br>
-                            <strong>可能的原因和解決方案：</strong><br>
-                            1. <strong>API 未啟用：</strong>請到 <a href="https://console.cloud.google.com/apis/library/texttospeech.googleapis.com" target="_blank" rel="noopener noreferrer">Google Cloud Console</a> 啟用 Text-to-Speech API<br>
-                            2. <strong>API Key 限制：</strong>檢查 <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer">API Key 設定</a> 是否有 IP 或網域限制<br>
-                            3. <strong>計費未啟用：</strong>到 <a href="https://console.cloud.google.com/billing" target="_blank" rel="noopener noreferrer">計費頁面</a> 啟用計費帳戶<br>
-                            4. <strong>配額不足：</strong>檢查 <a href="https://console.cloud.google.com/apis/api/texttospeech.googleapis.com/quotas" target="_blank" rel="noopener noreferrer">API 配額</a><br><br>
-                            💡 <strong>建議：</strong>切換到免費模式繼續使用，或重新建立一個新的 API Key
+                            🚫 <strong>API 服務被阻擋！</strong><br><br>
+                            根據錯誤代碼 <code>API_KEY_SERVICE_BLOCKED</code>，您的 Google Cloud 專案中 Text-to-Speech API 被阻擋了。<br><br>
+                            
+                            <strong>🔧 立即解決方案：</strong><br>
+                            1. <strong>啟用 API：</strong>前往 <a href="https://console.cloud.google.com/apis/library/texttospeech.googleapis.com" target="_blank" rel="noopener noreferrer" style="color: #007bff; font-weight: bold;">Google Cloud Console - Text-to-Speech API</a><br>
+                            2. <strong>點擊「啟用」按鈕</strong>（如果顯示已啟用，請先停用再重新啟用）<br>
+                            3. <strong>設定計費：</strong>到 <a href="https://console.cloud.google.com/billing" target="_blank" rel="noopener noreferrer" style="color: #007bff; font-weight: bold;">計費頁面</a> 確保已啟用計費帳戶<br>
+                            4. <strong>檢查配額：</strong>到 <a href="https://console.cloud.google.com/iam-admin/quotas" target="_blank" rel="noopener noreferrer" style="color: #007bff; font-weight: bold;">配額頁面</a> 確認 Text-to-Speech 配額<br><br>
+                            
+                            <strong>⚠️ 常見問題：</strong><br>
+                            • 新建立的 Google Cloud 專案需要啟用計費才能使用 API<br>
+                            • 免費試用額度用完後需要升級到付費帳戶<br>
+                            • API Key 可能有地區或服務限制<br><br>
+                            
+                            <strong>🔄 自動切換到免費模式...</strong><br>
+                            <span style="color: #28a745;">2 秒後將自動切換到瀏覽器內建語音，完全免費且無需設定！</span>
                         `, 'error');
                     } else if (error.message.includes('INVALID_ARGUMENT') || error.message.includes('400')) {
                         this.showMessage(`
@@ -1214,5 +1223,5 @@
             generator = new ScriptBasedSpeechGenerator();
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994f0bc9257f4a3c',t:'MTc2MTUzNTEwNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994f14f29653a355',t:'MTc2MTUzNTQ4MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
