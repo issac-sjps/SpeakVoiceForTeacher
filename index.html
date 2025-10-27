@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英文口說出題系統</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100%;
+        }
+        
+        html {
+            height: 100%;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100%;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .generate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result-section {
+            display: none;
+            margin-top: 30px;
+        }
+        
+        .audio-player {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .play-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .play-btn:hover {
+            background: #218838;
+        }
+        
+        .download-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .download-btn:hover {
+            background: #0056b3;
+        }
+        
+        .text-display {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .english-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .chinese-text {
+            font-size: 1rem;
+            color: #666;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .script-editor {
+            margin-top: 20px;
+        }
+        
+        .script-item {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .script-item.text-item {
+            border-left: 4px solid #28a745;
+        }
+        
+        .script-item.pause-item {
+            border-left: 4px solid #ffc107;
+            background: #fff8e1;
+        }
+        
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .item-type {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .delete-btn:hover {
+            background: #c82333;
+        }
+        
+        .text-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            resize: vertical;
+        }
+        
+        .voice-select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .pause-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .pause-slider {
+            flex: 1;
+        }
+        
+        .pause-value {
+            font-weight: 600;
+            color: #ffc107;
+            min-width: 60px;
+        }
+        
+        .add-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .add-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .add-btn:hover {
+            background: #5a6268;
+        }
+        
+        .text-btn {
+            background: #28a745;
+        }
+        
+        .text-btn:hover {
+            background: #218838;
+        }
+        
+        .pause-btn {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .pause-btn:hover {
+            background: #e0a800;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #6c757d;
+            padding: 40px;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🎯 英文口說出題系統</h1>
+            <p>輸入英文和中文原文，生成道地美式發音的MP3檔案</p>
+        </header>
+        
+        <main>
+            <div class="card">
+                <div class="api-setup" id="apiSetup">
+                    <h3>🔑 API 設定</h3>
+                    <div class="form-group">
+                        <label for="apiKey">Google AI Studio API Key：</label>
+                        <input 
+                            type="password" 
+                            id="apiKey" 
+                            placeholder="請輸入您的 Google AI Studio API Key"
+                            style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 16px;"
+                        >
+                        <small style="color: #666; display: block; margin-top: 5px;">
+                            請到 <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a> 取得免費 API Key
+                        </small>
+                    </div>
+                </div>
+                
+                <div class="script-editor">
+                    <h3>📝 語音腳本編輯器</h3>
+                    <div id="scriptItems"></div>
+                    
+                    <div class="add-buttons">
+                        <button type="button" class="add-btn text-btn" id="addTextBtn">
+                            ➕ 新增文字段落
+                        </button>
+                        <button type="button" class="add-btn pause-btn" id="addPauseBtn">
+                            ⏸️ 新增暫停
+                        </button>
+                    </div>
+                    
+                    <button type="button" class="generate-btn" id="generateBtn">
+                        🎵 生成完整語音檔案
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card result-section" id="resultSection">
+                <h3>🎵 語音檔案已生成</h3>
+                
+                <div class="audio-player">
+                    <p>您的語音腳本已成功生成為 MP3 檔案：</p>
+                    <button class="play-btn" id="playBtn">▶️ 播放完整語音</button>
+                    <button class="download-btn" id="downloadBtn">⬇️ 下載 MP3 檔案</button>
+                </div>
+                
+                <div id="statusMessage"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        class ScriptBasedSpeechGenerator {
+            constructor() {
+                this.currentAudio = null;
+                this.currentBlob = null;
+                this.apiKey = '';
+                this.scriptItems = [];
+                this.itemCounter = 0;
+                this.initializeElements();
+                this.bindEvents();
+                this.loadSavedApiKey();
+                this.showEmptyState();
+            }
+            
+            initializeElements() {
+                this.apiKeyInput = document.getElementById('apiKey');
+                this.scriptItemsContainer = document.getElementById('scriptItems');
+                this.addTextBtn = document.getElementById('addTextBtn');
+                this.addPauseBtn = document.getElementById('addPauseBtn');
+                this.generateBtn = document.getElementById('generateBtn');
+                this.resultSection = document.getElementById('resultSection');
+                this.playBtn = document.getElementById('playBtn');
+                this.downloadBtn = document.getElementById('downloadBtn');
+                this.statusMessage = document.getElementById('statusMessage');
+            }
+            
+            bindEvents() {
+                this.addTextBtn.addEventListener('click', () => this.addTextItem());
+                this.addPauseBtn.addEventListener('click', () => this.addPauseItem());
+                this.generateBtn.addEventListener('click', () => this.generateScript());
+                this.playBtn.addEventListener('click', () => this.playAudio());
+                this.downloadBtn.addEventListener('click', () => this.downloadAudio());
+                this.apiKeyInput.addEventListener('input', (e) => this.saveApiKey(e.target.value));
+            }
+            
+            loadSavedApiKey() {
+                const savedKey = localStorage.getItem('googleAIApiKey');
+                if (savedKey) {
+                    this.apiKeyInput.value = savedKey;
+                    this.apiKey = savedKey;
+                }
+            }
+            
+            saveApiKey(key) {
+                this.apiKey = key;
+                if (key) {
+                    localStorage.setItem('googleAIApiKey', key);
+                } else {
+                    localStorage.removeItem('googleAIApiKey');
+                }
+            }
+            
+            showEmptyState() {
+                if (this.scriptItems.length === 0) {
+                    this.scriptItemsContainer.innerHTML = `
+                        <div class="empty-state">
+                            <h4>📝 開始建立您的語音腳本</h4>
+                            <p>點擊下方按鈕新增文字段落或暫停時間</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            addTextItem() {
+                const itemId = ++this.itemCounter;
+                const item = {
+                    id: itemId,
+                    type: 'text',
+                    text: '',
+                    voice: 'en-US-Journey-D'
+                };
+                
+                this.scriptItems.push(item);
+                this.renderScriptItems();
+            }
+            
+            addPauseItem() {
+                const itemId = ++this.itemCounter;
+                const item = {
+                    id: itemId,
+                    type: 'pause',
+                    duration: 2.0
+                };
+                
+                this.scriptItems.push(item);
+                this.renderScriptItems();
+            }
+            
+            renderScriptItems() {
+                if (this.scriptItems.length === 0) {
+                    this.showEmptyState();
+                    return;
+                }
+                
+                this.scriptItemsContainer.innerHTML = this.scriptItems.map(item => {
+                    if (item.type === 'text') {
+                        return this.renderTextItem(item);
+                    } else {
+                        return this.renderPauseItem(item);
+                    }
+                }).join('');
+                
+                // 重新綁定事件
+                this.bindItemEvents();
+            }
+            
+            renderTextItem(item) {
+                return `
+                    <div class="script-item text-item" data-id="${item.id}">
+                        <div class="item-header">
+                            <span class="item-type">🗣️ 文字段落</span>
+                            <button class="delete-btn" onclick="generator.deleteItem(${item.id})">刪除</button>
+                        </div>
+                        <textarea 
+                            class="text-input" 
+                            placeholder="請輸入要朗讀的文字..."
+                            rows="3"
+                            onchange="generator.updateItemText(${item.id}, this.value)"
+                        >${item.text}</textarea>
+                        <select 
+                            class="voice-select" 
+                            onchange="generator.updateItemVoice(${item.id}, this.value)"
+                        >
+                            <option value="en-US-Journey-D" ${item.voice === 'en-US-Journey-D' ? 'selected' : ''}>美式英語 (女性) - Journey</option>
+                            <option value="en-US-Journey-F" ${item.voice === 'en-US-Journey-F' ? 'selected' : ''}>美式英語 (男性) - Journey</option>
+                            <option value="en-US-Studio-O" ${item.voice === 'en-US-Studio-O' ? 'selected' : ''}>美式英語 (女性) - Studio</option>
+                            <option value="en-US-Studio-Q" ${item.voice === 'en-US-Studio-Q' ? 'selected' : ''}>美式英語 (男性) - Studio</option>
+                        </select>
+                    </div>
+                `;
+            }
+            
+            renderPauseItem(item) {
+                return `
+                    <div class="script-item pause-item" data-id="${item.id}">
+                        <div class="item-header">
+                            <span class="item-type">⏸️ 暫停時間</span>
+                            <button class="delete-btn" onclick="generator.deleteItem(${item.id})">刪除</button>
+                        </div>
+                        <div class="pause-controls">
+                            <input 
+                                type="range" 
+                                class="pause-slider" 
+                                min="0.5" 
+                                max="10" 
+                                step="0.5" 
+                                value="${item.duration}"
+                                oninput="generator.updatePauseDuration(${item.id}, this.value)"
+                            >
+                            <span class="pause-value">${item.duration.toFixed(1)} 秒</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            bindItemEvents() {
+                // 事件已在 HTML 中使用 onclick 綁定
+            }
+            
+            updateItemText(itemId, text) {
+                const item = this.scriptItems.find(i => i.id === itemId);
+                if (item) {
+                    item.text = text;
+                }
+            }
+            
+            updateItemVoice(itemId, voice) {
+                const item = this.scriptItems.find(i => i.id === itemId);
+                if (item) {
+                    item.voice = voice;
+                }
+            }
+            
+            updatePauseDuration(itemId, duration) {
+                const item = this.scriptItems.find(i => i.id === itemId);
+                if (item) {
+                    item.duration = parseFloat(duration);
+                    // 更新顯示
+                    const pauseValue = document.querySelector(`[data-id="${itemId}"] .pause-value`);
+                    if (pauseValue) {
+                        pauseValue.textContent = `${parseFloat(duration).toFixed(1)} 秒`;
+                    }
+                }
+            }
+            
+            deleteItem(itemId) {
+                this.scriptItems = this.scriptItems.filter(item => item.id !== itemId);
+                this.renderScriptItems();
+            }
+            
+            async generateScript() {
+                if (!this.apiKey) {
+                    this.showMessage('請先輸入 Google AI Studio API Key', 'error');
+                    return;
+                }
+                
+                if (this.scriptItems.length === 0) {
+                    this.showMessage('請先新增一些文字段落或暫停時間', 'error');
+                    return;
+                }
+                
+                // 檢查是否有文字內容
+                const hasText = this.scriptItems.some(item => item.type === 'text' && item.text.trim());
+                if (!hasText) {
+                    this.showMessage('請至少新增一個包含文字的段落', 'error');
+                    return;
+                }
+                
+                this.generateBtn.disabled = true;
+                this.generateBtn.textContent = '🔄 生成中...';
+                this.showMessage('正在生成語音檔案，請稍候...', 'loading');
+                
+                try {
+                    await this.generateSpeechWithAPI();
+                } catch (error) {
+                    this.showMessage(`生成語音時發生錯誤：${error.message}`, 'error');
+                    console.error('Speech generation error:', error);
+                } finally {
+                    this.generateBtn.disabled = false;
+                    this.generateBtn.textContent = '🎵 生成完整語音檔案';
+                }
+            }
+            
+            async generateSpeechWithAPI() {
+                // 建立 SSML 內容
+                let ssmlContent = '';
+                
+                for (const item of this.scriptItems) {
+                    if (item.type === 'text' && item.text.trim()) {
+                        ssmlContent += `<voice name="${item.voice}">${item.text.trim()}</voice>`;
+                    } else if (item.type === 'pause') {
+                        ssmlContent += `<break time="${item.duration}s"/>`;
+                    }
+                }
+                
+                const ssmlText = `<speak>${ssmlContent}</speak>`;
+                
+                try {
+                    const response = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${this.apiKey}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            input: {
+                                ssml: ssmlText
+                            },
+                            voice: {
+                                languageCode: 'en-US',
+                                name: 'en-US-Journey-D'
+                            },
+                            audioConfig: {
+                                audioEncoding: 'MP3',
+                                speakingRate: 0.9,
+                                pitch: 0.0,
+                                volumeGainDb: 0.0
+                            }
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error?.message || `API 請求失敗 (${response.status})`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (!data.audioContent) {
+                        throw new Error('API 回應中沒有音頻內容');
+                    }
+                    
+                    // 將 base64 音頻轉換為 Blob
+                    const audioBytes = atob(data.audioContent);
+                    const audioArray = new Uint8Array(audioBytes.length);
+                    for (let i = 0; i < audioBytes.length; i++) {
+                        audioArray[i] = audioBytes.charCodeAt(i);
+                    }
+                    
+                    this.currentBlob = new Blob([audioArray], { type: 'audio/mpeg' });
+                    this.currentAudio = new Audio(URL.createObjectURL(this.currentBlob));
+                    
+                    // 顯示結果
+                    this.displayResults();
+                    
+                } catch (error) {
+                    // 如果 API 失敗，回退到瀏覽器內建語音
+                    console.warn('Google API 失敗，使用瀏覽器內建語音:', error);
+                    await this.generateSpeechFallback();
+                }
+            }
+            
+            async generateSpeechFallback() {
+                if (!('speechSynthesis' in window)) {
+                    throw new Error('您的瀏覽器不支援語音合成功能，且 Google API 也無法使用');
+                }
+                
+                // 創建文本檔案作為備用
+                const scriptContent = this.scriptItems.map(item => {
+                    if (item.type === 'text') {
+                        return `文字: ${item.text} (語音: ${item.voice})`;
+                    } else {
+                        return `暫停: ${item.duration} 秒`;
+                    }
+                }).join('\n');
+                
+                const textContent = `語音腳本內容：\n\n${scriptContent}\n\n生成時間：${new Date().toLocaleString()}\n\n注意：此為備用方案，如需高品質 MP3，請設定 Google AI Studio API Key`;
+                this.currentBlob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+                
+                this.displayResults();
+                this.showMessage('已使用備用方案生成。如需高品質 MP3，請設定 Google AI Studio API Key。', 'success');
+            }
+            
+            displayResults() {
+                this.resultSection.style.display = 'block';
+                this.showMessage('語音檔案生成完成！您可以播放試聽或下載檔案。', 'success');
+                this.resultSection.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            playAudio() {
+                if (this.currentAudio) {
+                    this.playBtn.textContent = '🔊 播放中...';
+                    this.playBtn.disabled = true;
+                    
+                    this.currentAudio.currentTime = 0;
+                    this.currentAudio.play();
+                    
+                    this.currentAudio.onended = () => {
+                        this.playBtn.textContent = '▶️ 播放完整語音';
+                        this.playBtn.disabled = false;
+                    };
+                    
+                    this.currentAudio.onerror = () => {
+                        this.playBtn.textContent = '▶️ 播放完整語音';
+                        this.playBtn.disabled = false;
+                        this.showMessage('播放失敗，請重新生成語音檔案', 'error');
+                    };
+                } else {
+                    this.showMessage('請先生成語音檔案', 'error');
+                }
+            }
+            
+            downloadAudio() {
+                if (this.currentBlob) {
+                    const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+                    const isMP3 = this.currentBlob.type === 'audio/mpeg';
+                    const extension = isMP3 ? 'mp3' : 'txt';
+                    const fileName = `語音腳本_${timestamp}.${extension}`;
+                    
+                    const url = URL.createObjectURL(this.currentBlob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    const message = isMP3 
+                        ? '🎵 MP3 檔案下載開始！這是您的完整語音腳本檔案。'
+                        : '📄 文本檔案下載開始！如需 MP3 檔案，請設定 Google AI Studio API Key。';
+                    
+                    this.showMessage(message, 'success');
+                } else {
+                    this.showMessage('請先生成語音檔案', 'error');
+                }
+            }
+            
+            showMessage(message, type) {
+                this.statusMessage.innerHTML = `<div class="${type}">${message}</div>`;
+                
+                if (type === 'success' || type === 'error') {
+                    setTimeout(() => {
+                        this.statusMessage.innerHTML = '';
+                    }, 5000);
+                }
+            }
+        }
+        
+        // 全域變數供 HTML 事件使用
+        let generator;
+        
+        // 頁面載入完成後初始化
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                generator = new ScriptBasedSpeechGenerator();
+            });
+        } else {
+            generator = new ScriptBasedSpeechGenerator();
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994e8388331e4a3c',t:'MTc2MTUyOTUyNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
