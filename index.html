@@ -602,48 +602,77 @@
             }
             
             async generateSpeechWithAPI() {
-                // 建立 SSML 內容
-                let ssmlContent = '';
+                console.log('開始生成語音，API Key:', this.apiKey ? '已設定' : '未設定');
+                console.log('腳本項目數量:', this.scriptItems.length);
+                
+                // 建立簡化的文字內容（不使用複雜的 SSML）
+                let textContent = '';
                 
                 for (const item of this.scriptItems) {
                     if (item.type === 'text' && item.text.trim()) {
-                        ssmlContent += `<voice name="${item.voice}">${item.text.trim()}</voice>`;
+                        textContent += item.text.trim() + ' ';
+                        console.log('添加文字:', item.text.trim());
                     } else if (item.type === 'pause') {
-                        ssmlContent += `<break time="${item.duration}s"/>`;
+                        // 用句號來模擬暫停
+                        textContent += '. ';
+                        console.log('添加暫停:', item.duration + '秒');
                     }
                 }
                 
-                const ssmlText = `<speak>${ssmlContent}</speak>`;
+                if (!textContent.trim()) {
+                    throw new Error('沒有找到要朗讀的文字內容');
+                }
+                
+                console.log('最終文字內容:', textContent);
+                
+                // 使用第一個文字項目的語音設定
+                const firstTextItem = this.scriptItems.find(item => item.type === 'text');
+                const voiceName = firstTextItem ? firstTextItem.voice : 'en-US-Journey-D';
                 
                 try {
+                    console.log('發送 API 請求...');
+                    const requestBody = {
+                        input: {
+                            text: textContent.trim()
+                        },
+                        voice: {
+                            languageCode: 'en-US',
+                            name: voiceName
+                        },
+                        audioConfig: {
+                            audioEncoding: 'MP3',
+                            speakingRate: 0.9,
+                            pitch: 0.0,
+                            volumeGainDb: 0.0
+                        }
+                    };
+                    
+                    console.log('請求內容:', requestBody);
+                    
                     const response = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${this.apiKey}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({
-                            input: {
-                                ssml: ssmlText
-                            },
-                            voice: {
-                                languageCode: 'en-US',
-                                name: 'en-US-Journey-D'
-                            },
-                            audioConfig: {
-                                audioEncoding: 'MP3',
-                                speakingRate: 0.9,
-                                pitch: 0.0,
-                                volumeGainDb: 0.0
-                            }
-                        })
+                        body: JSON.stringify(requestBody)
                     });
                     
+                    console.log('API 回應狀態:', response.status);
+                    
                     if (!response.ok) {
-                        const errorData = await response.json();
+                        const errorText = await response.text();
+                        console.error('API 錯誤回應:', errorText);
+                        let errorData;
+                        try {
+                            errorData = JSON.parse(errorText);
+                        } catch (e) {
+                            throw new Error(`API 請求失敗 (${response.status}): ${errorText}`);
+                        }
                         throw new Error(errorData.error?.message || `API 請求失敗 (${response.status})`);
                     }
                     
                     const data = await response.json();
+                    console.log('API 回應成功，音頻內容長度:', data.audioContent ? data.audioContent.length : 0);
                     
                     if (!data.audioContent) {
                         throw new Error('API 回應中沒有音頻內容');
@@ -659,12 +688,15 @@
                     this.currentBlob = new Blob([audioArray], { type: 'audio/mpeg' });
                     this.currentAudio = new Audio(URL.createObjectURL(this.currentBlob));
                     
+                    console.log('音頻檔案生成成功，大小:', this.currentBlob.size, 'bytes');
+                    
                     // 顯示結果
                     this.displayResults();
                     
                 } catch (error) {
+                    console.error('Google API 錯誤:', error);
                     // 如果 API 失敗，回退到瀏覽器內建語音
-                    console.warn('Google API 失敗，使用瀏覽器內建語音:', error);
+                    this.showMessage(`Google API 失敗: ${error.message}，嘗試使用瀏覽器內建語音...`, 'error');
                     await this.generateSpeechFallback();
                 }
             }
@@ -768,5 +800,5 @@
             generator = new ScriptBasedSpeechGenerator();
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994e8388331e4a3c',t:'MTc2MTUyOTUyNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994e8f8ba69b4a3c',t:'MTc2MTUzMDAxNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
