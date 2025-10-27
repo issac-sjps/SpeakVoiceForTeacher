@@ -201,15 +201,49 @@
             padding: 20px;
             margin-bottom: 15px;
             position: relative;
+            cursor: move;
+            transition: all 0.3s ease;
+        }
+        
+        .script-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .script-item.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+            z-index: 1000;
+        }
+        
+        .script-item.drag-over {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .drag-handle {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            font-size: 18px;
+            cursor: grab;
+        }
+        
+        .drag-handle:active {
+            cursor: grabbing;
         }
         
         .script-item.text-item {
             border-left: 4px solid #28a745;
+            padding-left: 50px;
         }
         
         .script-item.pause-item {
             border-left: 4px solid #ffc107;
             background: #fff8e1;
+            padding-left: 50px;
         }
         
         .item-header {
@@ -573,8 +607,9 @@
                                 <li>✅ 完全免費，無需註冊</li>
                                 <li>✅ 支援多種語音選項</li>
                                 <li>✅ 即時生成，無需等待</li>
+                                <li>✅ 可下載詳細腳本文字檔</li>
                                 <li>⚠️ 音質較基本</li>
-                                <li>⚠️ 僅支援線上播放</li>
+                                <li>⚠️ 無法下載 MP3 音頻檔</li>
                             </ul>
                         </div>
                     `;
@@ -656,7 +691,8 @@
             
             renderTextItem(item) {
                 return `
-                    <div class="script-item text-item" data-id="${item.id}">
+                    <div class="script-item text-item" data-id="${item.id}" draggable="true">
+                        <div class="drag-handle">⋮⋮</div>
                         <div class="item-header">
                             <span class="item-type">🗣️ 文字段落</span>
                             <button class="delete-btn" onclick="generator.deleteItem(${item.id})">刪除</button>
@@ -679,7 +715,8 @@
             
             renderPauseItem(item) {
                 return `
-                    <div class="script-item pause-item" data-id="${item.id}">
+                    <div class="script-item pause-item" data-id="${item.id}" draggable="true">
+                        <div class="drag-handle">⋮⋮</div>
                         <div class="item-header">
                             <span class="item-type">⏸️ 暫停時間</span>
                             <button class="delete-btn" onclick="generator.deleteItem(${item.id})">刪除</button>
@@ -701,7 +738,16 @@
             }
             
             bindItemEvents() {
-                // 事件已在 HTML 中使用 onclick 綁定
+                // 綁定拖拽事件
+                const scriptItems = this.scriptItemsContainer.querySelectorAll('.script-item');
+                scriptItems.forEach(item => {
+                    item.addEventListener('dragstart', (e) => this.handleDragStart(e));
+                    item.addEventListener('dragover', (e) => this.handleDragOver(e));
+                    item.addEventListener('drop', (e) => this.handleDrop(e));
+                    item.addEventListener('dragend', (e) => this.handleDragEnd(e));
+                    item.addEventListener('dragenter', (e) => this.handleDragEnter(e));
+                    item.addEventListener('dragleave', (e) => this.handleDragLeave(e));
+                });
             }
             
             updateItemText(itemId, text) {
@@ -733,6 +779,76 @@
             deleteItem(itemId) {
                 this.scriptItems = this.scriptItems.filter(item => item.id !== itemId);
                 this.renderScriptItems();
+            }
+            
+            // 拖拽處理函數
+            handleDragStart(e) {
+                this.draggedItemId = parseInt(e.target.dataset.id);
+                e.target.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', e.target.outerHTML);
+            }
+            
+            handleDragOver(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+            }
+            
+            handleDragEnter(e) {
+                e.preventDefault();
+                if (e.target.classList.contains('script-item') && 
+                    parseInt(e.target.dataset.id) !== this.draggedItemId) {
+                    e.target.classList.add('drag-over');
+                }
+            }
+            
+            handleDragLeave(e) {
+                if (e.target.classList.contains('script-item')) {
+                    e.target.classList.remove('drag-over');
+                }
+            }
+            
+            handleDrop(e) {
+                e.preventDefault();
+                const targetId = parseInt(e.target.closest('.script-item').dataset.id);
+                
+                if (targetId && targetId !== this.draggedItemId) {
+                    this.reorderItems(this.draggedItemId, targetId);
+                }
+                
+                // 清除所有拖拽樣式
+                this.scriptItemsContainer.querySelectorAll('.script-item').forEach(item => {
+                    item.classList.remove('drag-over');
+                });
+            }
+            
+            handleDragEnd(e) {
+                e.target.classList.remove('dragging');
+                this.draggedItemId = null;
+                
+                // 清除所有拖拽樣式
+                this.scriptItemsContainer.querySelectorAll('.script-item').forEach(item => {
+                    item.classList.remove('drag-over', 'dragging');
+                });
+            }
+            
+            reorderItems(draggedId, targetId) {
+                const draggedIndex = this.scriptItems.findIndex(item => item.id === draggedId);
+                const targetIndex = this.scriptItems.findIndex(item => item.id === targetId);
+                
+                if (draggedIndex === -1 || targetIndex === -1) return;
+                
+                // 移除被拖拽的項目
+                const draggedItem = this.scriptItems.splice(draggedIndex, 1)[0];
+                
+                // 插入到目標位置
+                this.scriptItems.splice(targetIndex, 0, draggedItem);
+                
+                // 重新渲染
+                this.renderScriptItems();
+                
+                // 顯示成功訊息
+                this.showMessage('✅ 段落順序已更新！', 'success');
             }
             
             async generateScript() {
@@ -1192,11 +1308,74 @@
                         : '📄 文本檔案下載開始！如需 MP3 檔案，請設定 Google Cloud API Key。';
                     
                     this.showMessage(message, 'success');
-                } else if (!this.isPremiumMode) {
-                    this.showMessage('免費模式不支援下載功能。如需下載 MP3 檔案，請切換到高品質模式並設定 API Key。', 'error');
+                } else if (!this.isPremiumMode && this.scriptItems.length > 0) {
+                    // 免費模式：生成腳本文字檔案
+                    this.generateScriptTextFile();
                 } else {
                     this.showMessage('請先生成語音檔案', 'error');
                 }
+            }
+            
+            generateScriptTextFile() {
+                // 建立詳細的腳本內容
+                let scriptContent = '🎯 英文口說出題系統 - 語音腳本\n';
+                scriptContent += '=' .repeat(50) + '\n\n';
+                scriptContent += `生成時間：${new Date().toLocaleString('zh-TW')}\n`;
+                scriptContent += `模式：免費模式 (瀏覽器內建語音)\n`;
+                scriptContent += `腳本項目數量：${this.scriptItems.length}\n\n`;
+                
+                scriptContent += '📝 完整腳本內容：\n';
+                scriptContent += '-'.repeat(30) + '\n\n';
+                
+                let itemNumber = 1;
+                for (const item of this.scriptItems) {
+                    if (item.type === 'text') {
+                        scriptContent += `${itemNumber}. 📢 文字朗讀\n`;
+                        scriptContent += `   內容：${item.text}\n`;
+                        scriptContent += `   語音：${item.voice}\n\n`;
+                        itemNumber++;
+                    } else if (item.type === 'pause') {
+                        scriptContent += `${itemNumber}. ⏸️ 暫停時間\n`;
+                        scriptContent += `   時長：${item.duration} 秒\n\n`;
+                        itemNumber++;
+                    }
+                }
+                
+                scriptContent += '\n' + '='.repeat(50) + '\n';
+                scriptContent += '💡 使用說明：\n';
+                scriptContent += '• 此檔案包含完整的語音腳本內容\n';
+                scriptContent += '• 免費模式使用瀏覽器內建語音引擎\n';
+                scriptContent += '• 如需高品質 MP3 檔案，請切換到高品質模式\n';
+                scriptContent += '• 可將此腳本匯入其他語音合成軟體使用\n\n';
+                
+                scriptContent += '🔗 相關連結：\n';
+                scriptContent += '• Google Cloud Text-to-Speech: https://cloud.google.com/text-to-speech\n';
+                scriptContent += '• Microsoft Speech Platform: https://www.microsoft.com/cognitive-services/speech\n';
+                scriptContent += '• Amazon Polly: https://aws.amazon.com/polly/\n\n';
+                
+                scriptContent += `檔案生成於：${new Date().toISOString()}\n`;
+                
+                // 建立並下載檔案
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+                const fileName = `語音腳本_免費版_${timestamp}.txt`;
+                
+                const blob = new Blob([scriptContent], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                this.showMessage(`
+                    📄 <strong>腳本文字檔案下載完成！</strong><br><br>
+                    ✅ 檔案包含完整的語音腳本內容<br>
+                    ✅ 可匯入其他語音合成軟體使用<br>
+                    ✅ 包含詳細的設定參數和使用說明<br><br>
+                    💡 <strong>提示：</strong>如需真正的 MP3 音頻檔案，請切換到高品質模式並設定 Google Cloud API Key
+                `, 'success');
             }
             
             showMessage(message, type) {
@@ -1223,5 +1402,5 @@
             generator = new ScriptBasedSpeechGenerator();
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994f14f29653a355',t:'MTc2MTUzNTQ4MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994f1d0fa472a355',t:'MTc2MTUzNTgxMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
