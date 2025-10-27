@@ -619,17 +619,88 @@
             getVoiceOptions(selectedVoice) {
                 if (this.isPremiumMode) {
                     return `
-                        <option value="en-US-Journey-D" ${selectedVoice === 'en-US-Journey-D' ? 'selected' : ''}>美式英語 (女性) - Journey</option>
-                        <option value="en-US-Journey-F" ${selectedVoice === 'en-US-Journey-F' ? 'selected' : ''}>美式英語 (男性) - Journey</option>
-                        <option value="en-US-Studio-O" ${selectedVoice === 'en-US-Studio-O' ? 'selected' : ''}>美式英語 (女性) - Studio</option>
-                        <option value="en-US-Studio-Q" ${selectedVoice === 'en-US-Studio-Q' ? 'selected' : ''}>美式英語 (男性) - Studio</option>
+                        <optgroup label="🇺🇸 英語語音">
+                            <option value="en-US-Journey-D" ${selectedVoice === 'en-US-Journey-D' ? 'selected' : ''}>美式英語 (女性) - Journey</option>
+                            <option value="en-US-Journey-F" ${selectedVoice === 'en-US-Journey-F' ? 'selected' : ''}>美式英語 (男性) - Journey</option>
+                            <option value="en-US-Studio-O" ${selectedVoice === 'en-US-Studio-O' ? 'selected' : ''}>美式英語 (女性) - Studio</option>
+                            <option value="en-US-Studio-Q" ${selectedVoice === 'en-US-Studio-Q' ? 'selected' : ''}>美式英語 (男性) - Studio</option>
+                            <option value="en-US-Neural2-A" ${selectedVoice === 'en-US-Neural2-A' ? 'selected' : ''}>美式英語 (男性) - Neural2</option>
+                            <option value="en-US-Neural2-C" ${selectedVoice === 'en-US-Neural2-C' ? 'selected' : ''}>美式英語 (女性) - Neural2</option>
+                            <option value="en-US-Neural2-D" ${selectedVoice === 'en-US-Neural2-D' ? 'selected' : ''}>美式英語 (男性) - Neural2</option>
+                            <option value="en-US-Neural2-E" ${selectedVoice === 'en-US-Neural2-E' ? 'selected' : ''}>美式英語 (女性) - Neural2</option>
+                            <option value="en-GB-Neural2-A" ${selectedVoice === 'en-GB-Neural2-A' ? 'selected' : ''}>英式英語 (女性) - Neural2</option>
+                            <option value="en-GB-Neural2-B" ${selectedVoice === 'en-GB-Neural2-B' ? 'selected' : ''}>英式英語 (男性) - Neural2</option>
+                        </optgroup>
+                        <optgroup label="🇹🇼 台灣中文">
+                            <option value="cmn-TW-Standard-A" ${selectedVoice === 'cmn-TW-Standard-A' ? 'selected' : ''}>台灣國語 (女性) - 標準</option>
+                            <option value="cmn-TW-Standard-B" ${selectedVoice === 'cmn-TW-Standard-B' ? 'selected' : ''}>台灣國語 (男性) - 標準</option>
+                            <option value="cmn-TW-Standard-C" ${selectedVoice === 'cmn-TW-Standard-C' ? 'selected' : ''}>台灣國語 (男性) - 標準</option>
+                            <option value="cmn-TW-Wavenet-A" ${selectedVoice === 'cmn-TW-Wavenet-A' ? 'selected' : ''}>台灣國語 (女性) - WaveNet</option>
+                            <option value="cmn-TW-Wavenet-B" ${selectedVoice === 'cmn-TW-Wavenet-B' ? 'selected' : ''}>台灣國語 (男性) - WaveNet</option>
+                            <option value="cmn-TW-Wavenet-C" ${selectedVoice === 'cmn-TW-Wavenet-C' ? 'selected' : ''}>台灣國語 (男性) - WaveNet</option>
+                        </optgroup>
+                        <optgroup label="🇨🇳 大陸中文">
+                            <option value="cmn-CN-Standard-A" ${selectedVoice === 'cmn-CN-Standard-A' ? 'selected' : ''}>普通話 (女性) - 標準</option>
+                            <option value="cmn-CN-Standard-B" ${selectedVoice === 'cmn-CN-Standard-B' ? 'selected' : ''}>普通話 (男性) - 標準</option>
+                            <option value="cmn-CN-Standard-C" ${selectedVoice === 'cmn-CN-Standard-C' ? 'selected' : ''}>普通話 (男性) - 標準</option>
+                            <option value="cmn-CN-Standard-D" ${selectedVoice === 'cmn-CN-Standard-D' ? 'selected' : ''}>普通話 (女性) - 標準</option>
+                            <option value="cmn-CN-Wavenet-A" ${selectedVoice === 'cmn-CN-Wavenet-A' ? 'selected' : ''}>普通話 (女性) - WaveNet</option>
+                            <option value="cmn-CN-Wavenet-B" ${selectedVoice === 'cmn-CN-Wavenet-B' ? 'selected' : ''}>普通話 (男性) - WaveNet</option>
+                            <option value="cmn-CN-Wavenet-C" ${selectedVoice === 'cmn-CN-Wavenet-C' ? 'selected' : ''}>普通話 (男性) - WaveNet</option>
+                            <option value="cmn-CN-Wavenet-D" ${selectedVoice === 'cmn-CN-Wavenet-D' ? 'selected' : ''}>普通話 (女性) - WaveNet</option>
+                        </optgroup>
+                        <optgroup label="🇭🇰 粵語">
+                            <option value="yue-HK-Standard-A" ${selectedVoice === 'yue-HK-Standard-A' ? 'selected' : ''}>粵語 (女性) - 標準</option>
+                            <option value="yue-HK-Standard-B" ${selectedVoice === 'yue-HK-Standard-B' ? 'selected' : ''}>粵語 (男性) - 標準</option>
+                            <option value="yue-HK-Standard-C" ${selectedVoice === 'yue-HK-Standard-C' ? 'selected' : ''}>粵語 (女性) - 標準</option>
+                            <option value="yue-HK-Standard-D" ${selectedVoice === 'yue-HK-Standard-D' ? 'selected' : ''}>粵語 (男性) - 標準</option>
+                        </optgroup>
+                        <optgroup label="🇯🇵 日語">
+                            <option value="ja-JP-Neural2-B" ${selectedVoice === 'ja-JP-Neural2-B' ? 'selected' : ''}>日語 (女性) - Neural2</option>
+                            <option value="ja-JP-Neural2-C" ${selectedVoice === 'ja-JP-Neural2-C' ? 'selected' : ''}>日語 (男性) - Neural2</option>
+                            <option value="ja-JP-Neural2-D" ${selectedVoice === 'ja-JP-Neural2-D' ? 'selected' : ''}>日語 (男性) - Neural2</option>
+                            <option value="ja-JP-Wavenet-A" ${selectedVoice === 'ja-JP-Wavenet-A' ? 'selected' : ''}>日語 (女性) - WaveNet</option>
+                            <option value="ja-JP-Wavenet-B" ${selectedVoice === 'ja-JP-Wavenet-B' ? 'selected' : ''}>日語 (女性) - WaveNet</option>
+                            <option value="ja-JP-Wavenet-C" ${selectedVoice === 'ja-JP-Wavenet-C' ? 'selected' : ''}>日語 (男性) - WaveNet</option>
+                            <option value="ja-JP-Wavenet-D" ${selectedVoice === 'ja-JP-Wavenet-D' ? 'selected' : ''}>日語 (男性) - WaveNet</option>
+                        </optgroup>
+                        <optgroup label="🇰🇷 韓語">
+                            <option value="ko-KR-Neural2-A" ${selectedVoice === 'ko-KR-Neural2-A' ? 'selected' : ''}>韓語 (女性) - Neural2</option>
+                            <option value="ko-KR-Neural2-B" ${selectedVoice === 'ko-KR-Neural2-B' ? 'selected' : ''}>韓語 (女性) - Neural2</option>
+                            <option value="ko-KR-Neural2-C" ${selectedVoice === 'ko-KR-Neural2-C' ? 'selected' : ''}>韓語 (男性) - Neural2</option>
+                            <option value="ko-KR-Wavenet-A" ${selectedVoice === 'ko-KR-Wavenet-A' ? 'selected' : ''}>韓語 (女性) - WaveNet</option>
+                            <option value="ko-KR-Wavenet-B" ${selectedVoice === 'ko-KR-Wavenet-B' ? 'selected' : ''}>韓語 (女性) - WaveNet</option>
+                            <option value="ko-KR-Wavenet-C" ${selectedVoice === 'ko-KR-Wavenet-C' ? 'selected' : ''}>韓語 (男性) - WaveNet</option>
+                            <option value="ko-KR-Wavenet-D" ${selectedVoice === 'ko-KR-Wavenet-D' ? 'selected' : ''}>韓語 (男性) - WaveNet</option>
+                        </optgroup>
                     `;
                 } else {
                     return `
-                        <option value="Microsoft Zira - English (United States)" ${selectedVoice === 'Microsoft Zira - English (United States)' ? 'selected' : ''}>美式英語 (女性)</option>
-                        <option value="Microsoft David - English (United States)" ${selectedVoice === 'Microsoft David - English (United States)' ? 'selected' : ''}>美式英語 (男性)</option>
-                        <option value="Google US English" ${selectedVoice === 'Google US English' ? 'selected' : ''}>Google 美式英語</option>
-                        <option value="native" ${selectedVoice === 'native' ? 'selected' : ''}>系統預設英語</option>
+                        <optgroup label="🇺🇸 英語語音">
+                            <option value="Microsoft Zira - English (United States)" ${selectedVoice === 'Microsoft Zira - English (United States)' ? 'selected' : ''}>美式英語 (女性)</option>
+                            <option value="Microsoft David - English (United States)" ${selectedVoice === 'Microsoft David - English (United States)' ? 'selected' : ''}>美式英語 (男性)</option>
+                            <option value="Google US English" ${selectedVoice === 'Google US English' ? 'selected' : ''}>Google 美式英語</option>
+                            <option value="native" ${selectedVoice === 'native' ? 'selected' : ''}>系統預設英語</option>
+                        </optgroup>
+                        <optgroup label="🇹🇼 中文語音">
+                            <option value="Microsoft Hanhan - Chinese (Taiwan)" ${selectedVoice === 'Microsoft Hanhan - Chinese (Taiwan)' ? 'selected' : ''}>台灣中文 (女性)</option>
+                            <option value="Microsoft Zhiwei - Chinese (Taiwan)" ${selectedVoice === 'Microsoft Zhiwei - Chinese (Taiwan)' ? 'selected' : ''}>台灣中文 (男性)</option>
+                            <option value="Google 國語（臺灣）" ${selectedVoice === 'Google 國語（臺灣）' ? 'selected' : ''}>Google 台灣國語</option>
+                            <option value="Microsoft Yaoyao - Chinese (Mainland)" ${selectedVoice === 'Microsoft Yaoyao - Chinese (Mainland)' ? 'selected' : ''}>大陸普通話 (女性)</option>
+                            <option value="Microsoft Kangkang - Chinese (Mainland)" ${selectedVoice === 'Microsoft Kangkang - Chinese (Mainland)' ? 'selected' : ''}>大陸普通話 (男性)</option>
+                            <option value="Google 普通话（中国大陆）" ${selectedVoice === 'Google 普通话（中国大陆）' ? 'selected' : ''}>Google 大陸普通話</option>
+                            <option value="Microsoft Tracy - Chinese (Hong Kong)" ${selectedVoice === 'Microsoft Tracy - Chinese (Hong Kong)' ? 'selected' : ''}>香港粵語 (女性)</option>
+                            <option value="Google 粤语（香港）" ${selectedVoice === 'Google 粤语（香港）' ? 'selected' : ''}>Google 香港粵語</option>
+                        </optgroup>
+                        <optgroup label="🇯🇵 日語語音">
+                            <option value="Microsoft Ayumi - Japanese" ${selectedVoice === 'Microsoft Ayumi - Japanese' ? 'selected' : ''}>日語 (女性)</option>
+                            <option value="Microsoft Ichiro - Japanese" ${selectedVoice === 'Microsoft Ichiro - Japanese' ? 'selected' : ''}>日語 (男性)</option>
+                            <option value="Google 日本語" ${selectedVoice === 'Google 日本語' ? 'selected' : ''}>Google 日語</option>
+                        </optgroup>
+                        <optgroup label="🇰🇷 韓語語音">
+                            <option value="Microsoft Heami - Korean" ${selectedVoice === 'Microsoft Heami - Korean' ? 'selected' : ''}>韓語 (女性)</option>
+                            <option value="Google 한국어" ${selectedVoice === 'Google 한국어' ? 'selected' : ''}>Google 韓語</option>
+                        </optgroup>
                     `;
                 }
             }
@@ -647,7 +718,7 @@
             
             addTextItem() {
                 const itemId = ++this.itemCounter;
-                const defaultVoice = this.isPremiumMode ? 'en-US-Journey-D' : 'Microsoft Zira - English (United States)';
+                const defaultVoice = this.isPremiumMode ? 'cmn-TW-Standard-A' : 'Microsoft Hanhan - Chinese (Taiwan)';
                 const item = {
                     id: itemId,
                     type: 'text',
@@ -916,6 +987,20 @@
                 const firstTextItem = this.scriptItems.find(item => item.type === 'text');
                 const voiceName = firstTextItem ? firstTextItem.voice : 'en-US-Journey-D';
                 
+                // 根據語音名稱自動判斷語言代碼
+                const getLanguageCode = (voiceName) => {
+                    if (voiceName.startsWith('en-US') || voiceName.includes('English (United States)')) return 'en-US';
+                    if (voiceName.startsWith('en-GB') || voiceName.includes('English (United Kingdom)')) return 'en-GB';
+                    if (voiceName.startsWith('cmn-TW') || voiceName.includes('Chinese (Taiwan)')) return 'cmn-TW';
+                    if (voiceName.startsWith('cmn-CN') || voiceName.includes('Chinese (Mainland)')) return 'cmn-CN';
+                    if (voiceName.startsWith('yue-HK') || voiceName.includes('Chinese (Hong Kong)')) return 'yue-HK';
+                    if (voiceName.startsWith('ja-JP') || voiceName.includes('Japanese')) return 'ja-JP';
+                    if (voiceName.startsWith('ko-KR') || voiceName.includes('Korean')) return 'ko-KR';
+                    return 'en-US'; // 預設
+                };
+                
+                const languageCode = getLanguageCode(voiceName);
+                
                 try {
                     console.log('發送 API 請求...');
                     const requestBody = {
@@ -923,7 +1008,7 @@
                             text: textContent.trim()
                         },
                         voice: {
-                            languageCode: 'en-US',
+                            languageCode: languageCode,
                             name: voiceName
                         },
                         audioConfig: {
@@ -1088,15 +1173,59 @@
                         console.log('可用語音數量:', voices.length);
                         console.log('前5個語音:', voices.slice(0, 5).map(v => v.name));
                         
+                        // 根據語音名稱設定語言和語音
                         if (item.voice === 'native') {
-                            selectedVoice = voices.find(voice => voice.lang.includes('en-US')) || voices[0];
+                            selectedVoice = voices.find(voice => voice.lang.includes('zh-TW') || voice.lang.includes('zh-CN')) || voices[0];
+                            utterance.lang = 'zh-TW';
+                        } else if (item.voice.includes('Chinese (Taiwan)') || item.voice.includes('臺灣') || item.voice.includes('台灣')) {
+                            selectedVoice = voices.find(voice => 
+                                voice.name.includes('Hanhan') || 
+                                voice.name.includes('Zhiwei') ||
+                                voice.lang.includes('zh-TW')
+                            );
+                            utterance.lang = 'zh-TW';
+                        } else if (item.voice.includes('Chinese (Mainland)') || item.voice.includes('中国大陆') || item.voice.includes('普通话')) {
+                            selectedVoice = voices.find(voice => 
+                                voice.name.includes('Yaoyao') || 
+                                voice.name.includes('Kangkang') ||
+                                voice.lang.includes('zh-CN')
+                            );
+                            utterance.lang = 'zh-CN';
+                        } else if (item.voice.includes('Chinese (Hong Kong)') || item.voice.includes('粤语') || item.voice.includes('香港')) {
+                            selectedVoice = voices.find(voice => 
+                                voice.name.includes('Tracy') ||
+                                voice.lang.includes('zh-HK')
+                            );
+                            utterance.lang = 'zh-HK';
+                        } else if (item.voice.includes('Japanese') || item.voice.includes('日本語')) {
+                            selectedVoice = voices.find(voice => 
+                                voice.name.includes('Ayumi') || 
+                                voice.name.includes('Ichiro') ||
+                                voice.lang.includes('ja-JP')
+                            );
+                            utterance.lang = 'ja-JP';
+                        } else if (item.voice.includes('Korean') || item.voice.includes('한국어')) {
+                            selectedVoice = voices.find(voice => 
+                                voice.name.includes('Heami') ||
+                                voice.lang.includes('ko-KR')
+                            );
+                            utterance.lang = 'ko-KR';
+                        } else if (item.voice.includes('English')) {
+                            selectedVoice = voices.find(voice => 
+                                voice.name.includes('Zira') || 
+                                voice.name.includes('David') ||
+                                voice.lang.includes('en-US')
+                            );
+                            utterance.lang = 'en-US';
                         } else {
+                            // 嘗試直接匹配語音名稱
                             selectedVoice = voices.find(voice => 
                                 voice.name.includes(item.voice) || 
                                 voice.name === item.voice
                             );
                             if (!selectedVoice) {
-                                selectedVoice = voices.find(voice => voice.lang.includes('en-US')) || voices[0];
+                                selectedVoice = voices.find(voice => voice.lang.includes('zh-TW')) || voices[0];
+                                utterance.lang = 'zh-TW';
                             }
                         }
                         
@@ -1402,5 +1531,5 @@
             generator = new ScriptBasedSpeechGenerator();
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994f1d0fa472a355',t:'MTc2MTUzNTgxMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994f21af660d4a3c',t:'MTc2MTUzNjAwMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
