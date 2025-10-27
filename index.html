@@ -416,6 +416,22 @@
         .premium-info {
             border-left-color: #ffc107;
         }
+        
+        .clear-script-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 10px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .clear-script-btn:hover {
+            background: #c82333;
+        }
     </style>
 </head>
 <body>
@@ -451,7 +467,9 @@
                                 <strong>📋 設定步驟：</strong><br>
                                 1. 到 <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer">Google Cloud Console</a> 建立專案<br>
                                 2. 啟用 <a href="https://console.cloud.google.com/apis/library/texttospeech.googleapis.com" target="_blank" rel="noopener noreferrer">Text-to-Speech API</a><br>
-                                3. 到 <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer">憑證頁面</a> 建立 API Key<br>
+                                3. 到 <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer">憑證頁面</a> 點擊「建立憑證」<br>
+                                4. <strong>⚠️ 重要：選擇「API 金鑰」(不是 OAuth 2.0 用戶端 ID)</strong><br>
+                                5. 複製產生的 API Key 並貼到上方輸入框<br>
                                 💾 您的 API Key 會自動儲存在這台電腦上，下次開啟會自動載入
                             </small>
                         </div>
@@ -464,15 +482,22 @@
                                 <li>✅ 完全免費，無需註冊</li>
                                 <li>✅ 支援多種語音選項</li>
                                 <li>✅ 即時生成，無需等待</li>
+                                <li>✅ 可下載音頻檔案 (WebM 格式)</li>
+                                <li>✅ 可下載詳細腳本文字檔</li>
                                 <li>⚠️ 音質較基本</li>
-                                <li>⚠️ 無法下載 MP3 檔案</li>
+                                <li>⚠️ 音頻格式為 WebM (非 MP3)</li>
                             </ul>
                         </div>
                     </div>
                 </div>
                 
                 <div class="script-editor">
-                    <h3>📝 語音腳本編輯器</h3>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3>📝 語音腳本編輯器</h3>
+                        <button type="button" class="clear-script-btn" id="clearScriptBtn">
+                            🗑️ 清空腳本
+                        </button>
+                    </div>
                     <div id="scriptItems"></div>
                     
                     <div class="add-buttons">
@@ -516,7 +541,7 @@
                 this.initializeElements();
                 this.bindEvents();
                 this.loadSavedApiKey();
-                this.showEmptyState();
+                this.loadSavedScript();
             }
             
             initializeElements() {
@@ -524,6 +549,7 @@
                 this.scriptItemsContainer = document.getElementById('scriptItems');
                 this.addTextBtn = document.getElementById('addTextBtn');
                 this.addPauseBtn = document.getElementById('addPauseBtn');
+                this.clearScriptBtn = document.getElementById('clearScriptBtn');
                 this.generateBtn = document.getElementById('generateBtn');
                 this.resultSection = document.getElementById('resultSection');
                 this.playBtn = document.getElementById('playBtn');
@@ -538,6 +564,7 @@
             bindEvents() {
                 this.addTextBtn.addEventListener('click', () => this.addTextItem());
                 this.addPauseBtn.addEventListener('click', () => this.addPauseItem());
+                this.clearScriptBtn.addEventListener('click', () => this.clearScript());
                 this.generateBtn.addEventListener('click', () => this.generateScript());
                 this.playBtn.addEventListener('click', () => this.playAudio());
                 this.downloadBtn.addEventListener('click', () => this.downloadAudio());
@@ -552,6 +579,56 @@
                     this.apiKeyInput.value = savedKey;
                     this.apiKey = savedKey;
                     console.log('已載入儲存的 API Key');
+                }
+            }
+            
+            loadSavedScript() {
+                try {
+                    const savedScript = localStorage.getItem('speechScriptItems');
+                    if (savedScript) {
+                        const parsedScript = JSON.parse(savedScript);
+                        if (Array.isArray(parsedScript) && parsedScript.length > 0) {
+                            this.scriptItems = parsedScript;
+                            // 重新設定 itemCounter 為最大 ID + 1
+                            this.itemCounter = Math.max(...parsedScript.map(item => item.id), 0);
+                            console.log('已載入儲存的語音腳本，共', parsedScript.length, '個項目');
+                            this.renderScriptItems();
+                            this.showMessage('✅ 已自動載入上次的語音腳本！', 'success');
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.error('載入儲存腳本時發生錯誤:', error);
+                    localStorage.removeItem('speechScriptItems'); // 清除損壞的資料
+                }
+                
+                // 如果沒有儲存的腳本或載入失敗，顯示空白狀態
+                this.showEmptyState();
+            }
+            
+            saveScript() {
+                try {
+                    localStorage.setItem('speechScriptItems', JSON.stringify(this.scriptItems));
+                    console.log('語音腳本已儲存到本機，共', this.scriptItems.length, '個項目');
+                } catch (error) {
+                    console.error('儲存腳本時發生錯誤:', error);
+                }
+            }
+            
+            clearScript() {
+                if (this.scriptItems.length === 0) {
+                    this.showMessage('腳本已經是空的了！', 'error');
+                    return;
+                }
+                
+                // 簡單的確認機制
+                const confirmClear = window.confirm('確定要清空所有腳本內容嗎？此操作無法復原。');
+                if (confirmClear) {
+                    this.scriptItems = [];
+                    this.itemCounter = 0;
+                    localStorage.removeItem('speechScriptItems');
+                    this.showEmptyState();
+                    this.showMessage('✅ 腳本已清空！', 'success');
                 }
             }
             
@@ -620,59 +697,25 @@
             getVoiceOptions(selectedVoice) {
                 if (this.isPremiumMode) {
                     return `
-                        <optgroup label="🇺🇸 英語語音">
-                            <option value="en-US-Journey-D" ${selectedVoice === 'en-US-Journey-D' ? 'selected' : ''}>美式英語 (女性) - Journey</option>
-                            <option value="en-US-Journey-F" ${selectedVoice === 'en-US-Journey-F' ? 'selected' : ''}>美式英語 (男性) - Journey</option>
-                            <option value="en-US-Studio-O" ${selectedVoice === 'en-US-Studio-O' ? 'selected' : ''}>美式英語 (女性) - Studio</option>
-                            <option value="en-US-Studio-Q" ${selectedVoice === 'en-US-Studio-Q' ? 'selected' : ''}>美式英語 (男性) - Studio</option>
-                            <option value="en-US-Neural2-A" ${selectedVoice === 'en-US-Neural2-A' ? 'selected' : ''}>美式英語 (男性) - Neural2</option>
+                        <optgroup label="🇺🇸 英語語音 (推薦)">
+                            <option value="en-US-Journey-D" ${selectedVoice === 'en-US-Journey-D' ? 'selected' : ''}>美式英語 (女性) - Journey 自然語音</option>
+                            <option value="en-US-Journey-F" ${selectedVoice === 'en-US-Journey-F' ? 'selected' : ''}>美式英語 (男性) - Journey 自然語音</option>
+                            <option value="en-US-Studio-O" ${selectedVoice === 'en-US-Studio-O' ? 'selected' : ''}>美式英語 (女性) - Studio 高品質</option>
+                            <option value="en-US-Studio-Q" ${selectedVoice === 'en-US-Studio-Q' ? 'selected' : ''}>美式英語 (男性) - Studio 高品質</option>
                             <option value="en-US-Neural2-C" ${selectedVoice === 'en-US-Neural2-C' ? 'selected' : ''}>美式英語 (女性) - Neural2</option>
                             <option value="en-US-Neural2-D" ${selectedVoice === 'en-US-Neural2-D' ? 'selected' : ''}>美式英語 (男性) - Neural2</option>
-                            <option value="en-US-Neural2-E" ${selectedVoice === 'en-US-Neural2-E' ? 'selected' : ''}>美式英語 (女性) - Neural2</option>
-                            <option value="en-GB-Neural2-A" ${selectedVoice === 'en-GB-Neural2-A' ? 'selected' : ''}>英式英語 (女性) - Neural2</option>
-                            <option value="en-GB-Neural2-B" ${selectedVoice === 'en-GB-Neural2-B' ? 'selected' : ''}>英式英語 (男性) - Neural2</option>
                         </optgroup>
                         <optgroup label="🇹🇼 台灣中文">
                             <option value="cmn-TW-Standard-A" ${selectedVoice === 'cmn-TW-Standard-A' ? 'selected' : ''}>台灣國語 (女性) - 標準</option>
                             <option value="cmn-TW-Standard-B" ${selectedVoice === 'cmn-TW-Standard-B' ? 'selected' : ''}>台灣國語 (男性) - 標準</option>
-                            <option value="cmn-TW-Standard-C" ${selectedVoice === 'cmn-TW-Standard-C' ? 'selected' : ''}>台灣國語 (男性) - 標準</option>
-                            <option value="cmn-TW-Wavenet-A" ${selectedVoice === 'cmn-TW-Wavenet-A' ? 'selected' : ''}>台灣國語 (女性) - WaveNet</option>
-                            <option value="cmn-TW-Wavenet-B" ${selectedVoice === 'cmn-TW-Wavenet-B' ? 'selected' : ''}>台灣國語 (男性) - WaveNet</option>
-                            <option value="cmn-TW-Wavenet-C" ${selectedVoice === 'cmn-TW-Wavenet-C' ? 'selected' : ''}>台灣國語 (男性) - WaveNet</option>
+                            <option value="cmn-TW-Wavenet-A" ${selectedVoice === 'cmn-TW-Wavenet-A' ? 'selected' : ''}>台灣國語 (女性) - WaveNet 高品質</option>
+                            <option value="cmn-TW-Wavenet-B" ${selectedVoice === 'cmn-TW-Wavenet-B' ? 'selected' : ''}>台灣國語 (男性) - WaveNet 高品質</option>
                         </optgroup>
                         <optgroup label="🇨🇳 大陸中文">
                             <option value="cmn-CN-Standard-A" ${selectedVoice === 'cmn-CN-Standard-A' ? 'selected' : ''}>普通話 (女性) - 標準</option>
                             <option value="cmn-CN-Standard-B" ${selectedVoice === 'cmn-CN-Standard-B' ? 'selected' : ''}>普通話 (男性) - 標準</option>
-                            <option value="cmn-CN-Standard-C" ${selectedVoice === 'cmn-CN-Standard-C' ? 'selected' : ''}>普通話 (男性) - 標準</option>
-                            <option value="cmn-CN-Standard-D" ${selectedVoice === 'cmn-CN-Standard-D' ? 'selected' : ''}>普通話 (女性) - 標準</option>
-                            <option value="cmn-CN-Wavenet-A" ${selectedVoice === 'cmn-CN-Wavenet-A' ? 'selected' : ''}>普通話 (女性) - WaveNet</option>
-                            <option value="cmn-CN-Wavenet-B" ${selectedVoice === 'cmn-CN-Wavenet-B' ? 'selected' : ''}>普通話 (男性) - WaveNet</option>
-                            <option value="cmn-CN-Wavenet-C" ${selectedVoice === 'cmn-CN-Wavenet-C' ? 'selected' : ''}>普通話 (男性) - WaveNet</option>
-                            <option value="cmn-CN-Wavenet-D" ${selectedVoice === 'cmn-CN-Wavenet-D' ? 'selected' : ''}>普通話 (女性) - WaveNet</option>
-                        </optgroup>
-                        <optgroup label="🇭🇰 粵語">
-                            <option value="yue-HK-Standard-A" ${selectedVoice === 'yue-HK-Standard-A' ? 'selected' : ''}>粵語 (女性) - 標準</option>
-                            <option value="yue-HK-Standard-B" ${selectedVoice === 'yue-HK-Standard-B' ? 'selected' : ''}>粵語 (男性) - 標準</option>
-                            <option value="yue-HK-Standard-C" ${selectedVoice === 'yue-HK-Standard-C' ? 'selected' : ''}>粵語 (女性) - 標準</option>
-                            <option value="yue-HK-Standard-D" ${selectedVoice === 'yue-HK-Standard-D' ? 'selected' : ''}>粵語 (男性) - 標準</option>
-                        </optgroup>
-                        <optgroup label="🇯🇵 日語">
-                            <option value="ja-JP-Neural2-B" ${selectedVoice === 'ja-JP-Neural2-B' ? 'selected' : ''}>日語 (女性) - Neural2</option>
-                            <option value="ja-JP-Neural2-C" ${selectedVoice === 'ja-JP-Neural2-C' ? 'selected' : ''}>日語 (男性) - Neural2</option>
-                            <option value="ja-JP-Neural2-D" ${selectedVoice === 'ja-JP-Neural2-D' ? 'selected' : ''}>日語 (男性) - Neural2</option>
-                            <option value="ja-JP-Wavenet-A" ${selectedVoice === 'ja-JP-Wavenet-A' ? 'selected' : ''}>日語 (女性) - WaveNet</option>
-                            <option value="ja-JP-Wavenet-B" ${selectedVoice === 'ja-JP-Wavenet-B' ? 'selected' : ''}>日語 (女性) - WaveNet</option>
-                            <option value="ja-JP-Wavenet-C" ${selectedVoice === 'ja-JP-Wavenet-C' ? 'selected' : ''}>日語 (男性) - WaveNet</option>
-                            <option value="ja-JP-Wavenet-D" ${selectedVoice === 'ja-JP-Wavenet-D' ? 'selected' : ''}>日語 (男性) - WaveNet</option>
-                        </optgroup>
-                        <optgroup label="🇰🇷 韓語">
-                            <option value="ko-KR-Neural2-A" ${selectedVoice === 'ko-KR-Neural2-A' ? 'selected' : ''}>韓語 (女性) - Neural2</option>
-                            <option value="ko-KR-Neural2-B" ${selectedVoice === 'ko-KR-Neural2-B' ? 'selected' : ''}>韓語 (女性) - Neural2</option>
-                            <option value="ko-KR-Neural2-C" ${selectedVoice === 'ko-KR-Neural2-C' ? 'selected' : ''}>韓語 (男性) - Neural2</option>
-                            <option value="ko-KR-Wavenet-A" ${selectedVoice === 'ko-KR-Wavenet-A' ? 'selected' : ''}>韓語 (女性) - WaveNet</option>
-                            <option value="ko-KR-Wavenet-B" ${selectedVoice === 'ko-KR-Wavenet-B' ? 'selected' : ''}>韓語 (女性) - WaveNet</option>
-                            <option value="ko-KR-Wavenet-C" ${selectedVoice === 'ko-KR-Wavenet-C' ? 'selected' : ''}>韓語 (男性) - WaveNet</option>
-                            <option value="ko-KR-Wavenet-D" ${selectedVoice === 'ko-KR-Wavenet-D' ? 'selected' : ''}>韓語 (男性) - WaveNet</option>
+                            <option value="cmn-CN-Wavenet-A" ${selectedVoice === 'cmn-CN-Wavenet-A' ? 'selected' : ''}>普通話 (女性) - WaveNet 高品質</option>
+                            <option value="cmn-CN-Wavenet-B" ${selectedVoice === 'cmn-CN-Wavenet-B' ? 'selected' : ''}>普通話 (男性) - WaveNet 高品質</option>
                         </optgroup>
                     `;
                 } else {
@@ -690,17 +733,6 @@
                             <option value="Microsoft Yaoyao - Chinese (Mainland)" ${selectedVoice === 'Microsoft Yaoyao - Chinese (Mainland)' ? 'selected' : ''}>大陸普通話 (女性)</option>
                             <option value="Microsoft Kangkang - Chinese (Mainland)" ${selectedVoice === 'Microsoft Kangkang - Chinese (Mainland)' ? 'selected' : ''}>大陸普通話 (男性)</option>
                             <option value="Google 普通话（中国大陆）" ${selectedVoice === 'Google 普通话（中国大陆）' ? 'selected' : ''}>Google 大陸普通話</option>
-                            <option value="Microsoft Tracy - Chinese (Hong Kong)" ${selectedVoice === 'Microsoft Tracy - Chinese (Hong Kong)' ? 'selected' : ''}>香港粵語 (女性)</option>
-                            <option value="Google 粤语（香港）" ${selectedVoice === 'Google 粤语（香港）' ? 'selected' : ''}>Google 香港粵語</option>
-                        </optgroup>
-                        <optgroup label="🇯🇵 日語語音">
-                            <option value="Microsoft Ayumi - Japanese" ${selectedVoice === 'Microsoft Ayumi - Japanese' ? 'selected' : ''}>日語 (女性)</option>
-                            <option value="Microsoft Ichiro - Japanese" ${selectedVoice === 'Microsoft Ichiro - Japanese' ? 'selected' : ''}>日語 (男性)</option>
-                            <option value="Google 日本語" ${selectedVoice === 'Google 日本語' ? 'selected' : ''}>Google 日語</option>
-                        </optgroup>
-                        <optgroup label="🇰🇷 韓語語音">
-                            <option value="Microsoft Heami - Korean" ${selectedVoice === 'Microsoft Heami - Korean' ? 'selected' : ''}>韓語 (女性)</option>
-                            <option value="Google 한국어" ${selectedVoice === 'Google 한국어' ? 'selected' : ''}>Google 韓語</option>
                         </optgroup>
                     `;
                 }
@@ -712,6 +744,7 @@
                         <div class="empty-state">
                             <h4>📝 開始建立您的語音腳本</h4>
                             <p>點擊下方按鈕新增文字段落或暫停時間</p>
+                            <p style="color: #28a745; font-weight: 600;">💾 您的腳本會自動儲存在這台電腦上</p>
                         </div>
                     `;
                 }
@@ -719,7 +752,7 @@
             
             addTextItem() {
                 const itemId = ++this.itemCounter;
-                const defaultVoice = this.isPremiumMode ? 'cmn-TW-Standard-A' : 'Microsoft Hanhan - Chinese (Taiwan)';
+                const defaultVoice = this.isPremiumMode ? 'en-US-Journey-D' : 'Microsoft Zira - English (United States)';
                 const item = {
                     id: itemId,
                     type: 'text',
@@ -729,6 +762,7 @@
                 
                 this.scriptItems.push(item);
                 this.renderScriptItems();
+                this.saveScript(); // 自動儲存
             }
             
             addPauseItem() {
@@ -741,6 +775,7 @@
                 
                 this.scriptItems.push(item);
                 this.renderScriptItems();
+                this.saveScript(); // 自動儲存
             }
             
             renderScriptItems() {
@@ -826,6 +861,7 @@
                 const item = this.scriptItems.find(i => i.id === itemId);
                 if (item) {
                     item.text = text;
+                    this.saveScript(); // 自動儲存
                 }
             }
             
@@ -833,6 +869,7 @@
                 const item = this.scriptItems.find(i => i.id === itemId);
                 if (item) {
                     item.voice = voice;
+                    this.saveScript(); // 自動儲存
                 }
             }
             
@@ -845,12 +882,14 @@
                     if (pauseValue) {
                         pauseValue.textContent = `${parseFloat(duration).toFixed(1)} 秒`;
                     }
+                    this.saveScript(); // 自動儲存
                 }
             }
             
             deleteItem(itemId) {
                 this.scriptItems = this.scriptItems.filter(item => item.id !== itemId);
                 this.renderScriptItems();
+                this.saveScript(); // 自動儲存
             }
             
             // 拖拽處理函數
@@ -918,6 +957,7 @@
                 
                 // 重新渲染
                 this.renderScriptItems();
+                this.saveScript(); // 自動儲存
                 
                 // 顯示成功訊息
                 this.showMessage('✅ 段落順序已更新！', 'success');
@@ -994,9 +1034,6 @@
                     if (voiceName.startsWith('en-GB') || voiceName.includes('English (United Kingdom)')) return 'en-GB';
                     if (voiceName.startsWith('cmn-TW') || voiceName.includes('Chinese (Taiwan)')) return 'cmn-TW';
                     if (voiceName.startsWith('cmn-CN') || voiceName.includes('Chinese (Mainland)')) return 'cmn-CN';
-                    if (voiceName.startsWith('yue-HK') || voiceName.includes('Chinese (Hong Kong)')) return 'yue-HK';
-                    if (voiceName.startsWith('ja-JP') || voiceName.includes('Japanese')) return 'ja-JP';
-                    if (voiceName.startsWith('ko-KR') || voiceName.includes('Korean')) return 'ko-KR';
                     return 'en-US'; // 預設
                 };
                 
@@ -1096,20 +1133,10 @@
                             &nbsp;&nbsp;&nbsp;• 如果顯示「已啟用」，請先停用再重新啟用<br>
                             &nbsp;&nbsp;&nbsp;• 等待 2-5 分鐘讓設定生效<br><br>
                             
-                            3. <strong>檢查專案狀態：</strong>確認您的 Google Cloud 專案：<br>
-                            &nbsp;&nbsp;&nbsp;• 專案 ID: projects/10081671779<br>
-                            &nbsp;&nbsp;&nbsp;• 專案是否處於正常狀態<br>
-                            &nbsp;&nbsp;&nbsp;• 是否有足夠的配額<br><br>
-                            
-                            4. <strong>重新建立 API Key：</strong>到 <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" style="color: #007bff; font-weight: bold;">憑證頁面</a><br>
+                            3. <strong>重新建立 API Key：</strong>到 <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" style="color: #007bff; font-weight: bold;">憑證頁面</a><br>
                             &nbsp;&nbsp;&nbsp;• 刪除舊的 API Key<br>
                             &nbsp;&nbsp;&nbsp;• 建立新的 API Key<br>
                             &nbsp;&nbsp;&nbsp;• 確保 API Key 有正確的權限<br><br>
-                            
-                            <strong>⚠️ 重要提醒：</strong><br>
-                            • Google Cloud 的 Text-to-Speech API 需要啟用計費帳戶<br>
-                            • 每月前 100 萬字元免費，超過才收費<br>
-                            • 設定變更可能需要幾分鐘才生效<br><br>
                             
                             🔄 <strong>立即解決方案：手動切換到免費模式使用瀏覽器內建語音</strong>
                         `, 'error');
@@ -1128,16 +1155,6 @@
                             3. 確保 API Key 有 Text-to-Speech API 權限<br>
                             4. 重新複製並貼上新的 API Key<br><br>
                             
-                            🔄 <strong>或者您可以手動切換到免費模式</strong>
-                        `, 'error');
-                    } else if (error.message.includes('UNAUTHENTICATED') || error.message.includes('401')) {
-                        this.showMessage(`
-                            🔐 <strong>API Key 驗證失敗！</strong><br><br>
-                            <strong>請檢查：</strong><br>
-                            • API Key 是否正確複製<br>
-                            • API Key 是否已過期<br>
-                            • 是否使用了正確的 Google Cloud 專案<br><br>
-                            💡 <strong>建議：</strong>重新產生一個新的 API Key<br>
                             🔄 <strong>或者您可以手動切換到免費模式</strong>
                         `, 'error');
                     } else {
@@ -1210,25 +1227,6 @@
                                 voice.lang.includes('zh-Hans')
                             ) || voices.find(voice => voice.lang.includes('zh'));
                             utterance.lang = 'zh-CN';
-                        } else if (item.voice.includes('Chinese (Hong Kong)') || item.voice.includes('粤语') || item.voice.includes('香港')) {
-                            selectedVoice = voices.find(voice => 
-                                voice.name.includes('Tracy') ||
-                                voice.lang.includes('zh-HK')
-                            ) || voices.find(voice => voice.lang.includes('zh'));
-                            utterance.lang = 'zh-HK';
-                        } else if (item.voice.includes('Japanese') || item.voice.includes('日本語')) {
-                            selectedVoice = voices.find(voice => 
-                                voice.name.includes('Ayumi') || 
-                                voice.name.includes('Ichiro') ||
-                                voice.lang.includes('ja')
-                            );
-                            utterance.lang = 'ja-JP';
-                        } else if (item.voice.includes('Korean') || item.voice.includes('한국어')) {
-                            selectedVoice = voices.find(voice => 
-                                voice.name.includes('Heami') ||
-                                voice.lang.includes('ko')
-                            );
-                            utterance.lang = 'ko-KR';
                         } else if (item.voice.includes('English')) {
                             selectedVoice = voices.find(voice => 
                                 voice.name.includes('Zira') || 
@@ -1471,51 +1469,6 @@
                 }
             }
             
-            async playAndRecordBrowserSpeech(audioContext, destination) {
-                return new Promise((resolve, reject) => {
-                    let currentIndex = 0;
-                    
-                    const playNext = () => {
-                        if (currentIndex >= this.speechQueue.length) {
-                            // 等待一秒後結束錄製
-                            setTimeout(() => {
-                                resolve();
-                            }, 1000);
-                            return;
-                        }
-                        
-                        const item = this.speechQueue[currentIndex];
-                        currentIndex++;
-                        
-                        if (item.type === 'speech') {
-                            // 建立新的語音實例用於錄製
-                            const utterance = new SpeechSynthesisUtterance(item.text);
-                            utterance.voice = item.utterance.voice;
-                            utterance.lang = item.utterance.lang;
-                            utterance.rate = item.utterance.rate;
-                            utterance.pitch = item.utterance.pitch;
-                            utterance.volume = item.utterance.volume;
-                            
-                            utterance.onend = () => {
-                                setTimeout(playNext, 100);
-                            };
-                            
-                            utterance.onerror = (error) => {
-                                console.error('錄製語音播放錯誤:', error);
-                                setTimeout(playNext, 100); // 繼續下一個
-                            };
-                            
-                            speechSynthesis.speak(utterance);
-                            
-                        } else if (item.type === 'pause') {
-                            setTimeout(playNext, item.duration);
-                        }
-                    };
-                    
-                    playNext();
-                });
-            }
-            
             async playBrowserSpeech() {
                 return new Promise((resolve, reject) => {
                     console.log('開始播放語音序列，共', this.speechQueue.length, '個項目');
@@ -1593,23 +1546,6 @@
                     // 開始播放
                     playNext();
                 });
-            }
-            
-            async generateSpeechFallback() {
-                // 如果瀏覽器語音也失敗，創建文本檔案
-                const scriptContent = this.scriptItems.map(item => {
-                    if (item.type === 'text') {
-                        return `文字: ${item.text} (語音: ${item.voice})`;
-                    } else {
-                        return `暫停: ${item.duration} 秒`;
-                    }
-                }).join('\n');
-                
-                const textContent = `語音腳本內容：\n\n${scriptContent}\n\n生成時間：${new Date().toLocaleString()}\n\n注意：此為備用方案，如需語音播放，請使用支援語音合成的瀏覽器`;
-                this.currentBlob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
-                
-                this.displayResults();
-                this.showMessage('瀏覽器不支援語音合成，已生成文字檔案。', 'success');
             }
             
             displayResults() {
@@ -1827,5 +1763,5 @@
             generator = new ScriptBasedSpeechGenerator();
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994f36fa832f4a3c',t:'MTc2MTUzNjg3NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994f4cc2e16e8448',t:'MTc2MTUzNzc2Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
