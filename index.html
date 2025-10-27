@@ -711,12 +711,6 @@
                             <option value="cmn-TW-Wavenet-A" ${selectedVoice === 'cmn-TW-Wavenet-A' ? 'selected' : ''}>台灣國語 (女性) - WaveNet 高品質</option>
                             <option value="cmn-TW-Wavenet-B" ${selectedVoice === 'cmn-TW-Wavenet-B' ? 'selected' : ''}>台灣國語 (男性) - WaveNet 高品質</option>
                         </optgroup>
-                        <optgroup label="🇨🇳 大陸中文">
-                            <option value="cmn-CN-Standard-A" ${selectedVoice === 'cmn-CN-Standard-A' ? 'selected' : ''}>普通話 (女性) - 標準</option>
-                            <option value="cmn-CN-Standard-B" ${selectedVoice === 'cmn-CN-Standard-B' ? 'selected' : ''}>普通話 (男性) - 標準</option>
-                            <option value="cmn-CN-Wavenet-A" ${selectedVoice === 'cmn-CN-Wavenet-A' ? 'selected' : ''}>普通話 (女性) - WaveNet 高品質</option>
-                            <option value="cmn-CN-Wavenet-B" ${selectedVoice === 'cmn-CN-Wavenet-B' ? 'selected' : ''}>普通話 (男性) - WaveNet 高品質</option>
-                        </optgroup>
                     `;
                 } else {
                     return `
@@ -730,9 +724,6 @@
                             <option value="Microsoft Hanhan - Chinese (Taiwan)" ${selectedVoice === 'Microsoft Hanhan - Chinese (Taiwan)' ? 'selected' : ''}>台灣中文 (女性)</option>
                             <option value="Microsoft Zhiwei - Chinese (Taiwan)" ${selectedVoice === 'Microsoft Zhiwei - Chinese (Taiwan)' ? 'selected' : ''}>台灣中文 (男性)</option>
                             <option value="Google 國語（臺灣）" ${selectedVoice === 'Google 國語（臺灣）' ? 'selected' : ''}>Google 台灣國語</option>
-                            <option value="Microsoft Yaoyao - Chinese (Mainland)" ${selectedVoice === 'Microsoft Yaoyao - Chinese (Mainland)' ? 'selected' : ''}>大陸普通話 (女性)</option>
-                            <option value="Microsoft Kangkang - Chinese (Mainland)" ${selectedVoice === 'Microsoft Kangkang - Chinese (Mainland)' ? 'selected' : ''}>大陸普通話 (男性)</option>
-                            <option value="Google 普通话（中国大陆）" ${selectedVoice === 'Google 普通话（中国大陆）' ? 'selected' : ''}>Google 大陸普通話</option>
                         </optgroup>
                     `;
                 }
@@ -1033,7 +1024,6 @@
                     if (voiceName.startsWith('en-US') || voiceName.includes('English (United States)')) return 'en-US';
                     if (voiceName.startsWith('en-GB') || voiceName.includes('English (United Kingdom)')) return 'en-GB';
                     if (voiceName.startsWith('cmn-TW') || voiceName.includes('Chinese (Taiwan)')) return 'cmn-TW';
-                    if (voiceName.startsWith('cmn-CN') || voiceName.includes('Chinese (Mainland)')) return 'cmn-CN';
                     return 'en-US'; // 預設
                 };
                 
@@ -1211,7 +1201,7 @@
                                 voice.lang.includes('en')
                             ) || voices[0];
                             utterance.lang = selectedVoice ? selectedVoice.lang : 'zh-TW';
-                        } else if (item.voice.includes('Chinese (Taiwan)') || item.voice.includes('臺灣') || item.voice.includes('台灣')) {
+                        } else if (item.voice.includes('Chinese (Taiwan)') || item.voice.includes('臺灣') || item.voice.includes('台灣') || item.voice.startsWith('cmn-TW')) {
                             selectedVoice = voices.find(voice => 
                                 voice.name.includes('Hanhan') || 
                                 voice.name.includes('Zhiwei') ||
@@ -1219,14 +1209,6 @@
                                 voice.lang.includes('zh-Hant')
                             ) || voices.find(voice => voice.lang.includes('zh'));
                             utterance.lang = 'zh-TW';
-                        } else if (item.voice.includes('Chinese (Mainland)') || item.voice.includes('中国大陆') || item.voice.includes('普通话')) {
-                            selectedVoice = voices.find(voice => 
-                                voice.name.includes('Yaoyao') || 
-                                voice.name.includes('Kangkang') ||
-                                voice.lang.includes('zh-CN') ||
-                                voice.lang.includes('zh-Hans')
-                            ) || voices.find(voice => voice.lang.includes('zh'));
-                            utterance.lang = 'zh-CN';
                         } else if (item.voice.includes('English')) {
                             selectedVoice = voices.find(voice => 
                                 voice.name.includes('Zira') || 
@@ -1763,5 +1745,5 @@
             generator = new ScriptBasedSpeechGenerator();
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994f4cc2e16e8448',t:'MTc2MTUzNzc2Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994f58c3e6cc4a3c',t:'MTc2MTUzODI1OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
