@@ -62,7 +62,7 @@
             font-size: 1.1rem;
         }
         
-        textarea {
+        textarea, input[type="text"], input[type="password"] {
             width: 100%;
             padding: 15px;
             border: 2px solid #e1e5e9;
@@ -71,15 +71,16 @@
             font-family: inherit;
             resize: vertical;
             transition: border-color 0.3s ease;
+            box-sizing: border-box;
         }
         
-        textarea:focus {
+        textarea:focus, input:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
-        .generate-btn {
+        .btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
@@ -92,102 +93,61 @@
             width: 100%;
         }
         
-        .generate-btn:hover {
+        .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
         
-        .generate-btn:disabled {
+        .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
         }
         
-        .result-section {
-            display: none;
-            margin-top: 30px;
+        .mode-selector {
+            margin-bottom: 30px;
         }
         
-        .audio-player {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
+        .mode-buttons {
+            display: flex;
+            gap: 15px;
             margin-bottom: 20px;
         }
         
-        .play-btn {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
+        .mode-btn {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            background: white;
+            color: #495057;
             font-size: 1rem;
-            cursor: pointer;
-            margin: 0 10px;
-            transition: background-color 0.3s ease;
-        }
-        
-        .play-btn:hover {
-            background: #218838;
-        }
-        
-        .download-btn {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-            margin: 0 10px;
-            transition: background-color 0.3s ease;
-        }
-        
-        .download-btn:hover {
-            background: #0056b3;
-        }
-        
-        .text-display {
-            background: #f8f9fa;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-        }
-        
-        .english-text {
-            font-size: 1.2rem;
             font-weight: 600;
-            color: #333;
-            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
         
-        .chinese-text {
-            font-size: 1rem;
-            color: #666;
-        }
-        
-        .loading {
-            text-align: center;
+        .mode-btn:hover {
+            border-color: #667eea;
             color: #667eea;
-            font-weight: 600;
         }
         
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #dc3545;
+        .mode-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
         }
         
-        .success {
-            background: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #28a745;
+        .api-setup {
+            display: none;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+        
+        .api-setup.show {
+            display: block;
         }
         
         .script-editor {
@@ -203,6 +163,7 @@
             position: relative;
             cursor: move;
             transition: all 0.3s ease;
+            padding-left: 50px;
         }
         
         .script-item:hover {
@@ -221,6 +182,15 @@
             background: #f0f4ff;
         }
         
+        .script-item.text-item {
+            border-left: 4px solid #28a745;
+        }
+        
+        .script-item.pause-item {
+            border-left: 4px solid #ffc107;
+            background: #fff8e1;
+        }
+        
         .drag-handle {
             position: absolute;
             left: 10px;
@@ -229,21 +199,11 @@
             color: #6c757d;
             font-size: 18px;
             cursor: grab;
+            user-select: none;
         }
         
         .drag-handle:active {
             cursor: grabbing;
-        }
-        
-        .script-item.text-item {
-            border-left: 4px solid #28a745;
-            padding-left: 50px;
-        }
-        
-        .script-item.pause-item {
-            border-left: 4px solid #ffc107;
-            background: #fff8e1;
-            padding-left: 50px;
         }
         
         .item-header {
@@ -355,42 +315,64 @@
             margin-bottom: 20px;
         }
         
-        .voice-mode-selector {
-            margin-bottom: 30px;
+        .result-section {
+            display: none;
         }
         
-        .mode-buttons {
-            display: flex;
-            gap: 15px;
+        .audio-player {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
             margin-bottom: 20px;
         }
         
-        .mode-btn {
-            flex: 1;
-            padding: 15px 20px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            background: white;
-            color: #495057;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .mode-btn:hover {
-            border-color: #667eea;
-            color: #667eea;
-        }
-        
-        .mode-btn.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .play-btn, .download-btn {
+            background: #28a745;
             color: white;
-            border-color: #667eea;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: background-color 0.3s ease;
         }
         
-        .mode-info {
-            margin-top: 15px;
+        .play-btn:hover {
+            background: #218838;
+        }
+        
+        .download-btn {
+            background: #007bff;
+        }
+        
+        .download-btn:hover {
+            background: #0056b3;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .message.loading {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
         }
         
         .info-card {
@@ -398,6 +380,7 @@
             border-radius: 10px;
             padding: 20px;
             border-left: 4px solid #28a745;
+            margin-top: 15px;
         }
         
         .info-card h4 {
@@ -418,22 +401,6 @@
         .premium-info {
             border-left-color: #ffc107;
         }
-        
-        .clear-script-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            margin-left: 10px;
-            transition: background-color 0.3s ease;
-        }
-        
-        .clear-script-btn:hover {
-            background: #c82333;
-        }
     </style>
 </head>
 <body>
@@ -445,25 +412,24 @@
         
         <main>
             <div class="card">
-                <div class="voice-mode-selector">
+                <div class="mode-selector">
                     <h3>🎵 語音模式選擇</h3>
                     <div class="mode-buttons">
-                        <button type="button" class="mode-btn active" id="freeMode">
+                        <button class="mode-btn active" data-mode="free">
                             🆓 免費模式 (瀏覽器內建)
                         </button>
-                        <button type="button" class="mode-btn" id="premiumMode">
+                        <button class="mode-btn" data-mode="premium">
                             ⭐ 高品質模式 (需要 API Key)
                         </button>
                     </div>
                     
-                    <div class="api-setup" id="apiSetup" style="display: none;">
+                    <div class="api-setup" id="apiSetup">
                         <div class="form-group">
                             <label for="apiKey">Google Cloud Text-to-Speech API Key：</label>
                             <input 
                                 type="password" 
                                 id="apiKey" 
                                 placeholder="請輸入您的 Google Cloud API Key"
-                                style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 16px;"
                             >
                             <small style="color: #666; display: block; margin-top: 5px;">
                                 <strong>📋 設定步驟：</strong><br>
@@ -471,47 +437,43 @@
                                 2. 啟用 <a href="https://console.cloud.google.com/apis/library/texttospeech.googleapis.com" target="_blank" rel="noopener noreferrer">Text-to-Speech API</a><br>
                                 3. 到 <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer">憑證頁面</a> 點擊「建立憑證」<br>
                                 4. <strong>⚠️ 重要：選擇「API 金鑰」(不是 OAuth 2.0 用戶端 ID)</strong><br>
-                                5. 複製產生的 API Key 並貼到上方輸入框<br>
-                                💾 您的 API Key 會自動儲存在這台電腦上，下次開啟會自動載入
+                                5. 複製產生的 API Key 並貼到上方輸入框
                             </small>
                         </div>
                     </div>
                     
-                    <div class="mode-info" id="modeInfo">
-                        <div class="info-card free-info">
-                            <h4>🆓 免費模式特色</h4>
-                            <ul>
-                                <li>✅ 完全免費，無需註冊</li>
-                                <li>✅ 支援多種語音選項</li>
-                                <li>✅ 即時生成，無需等待</li>
-                                <li>✅ 可下載音頻檔案 (WebM 格式)</li>
-                                <li>✅ 可下載詳細腳本文字檔</li>
-                                <li>⚠️ 音質較基本</li>
-                                <li>⚠️ 音頻格式為 WebM (非 MP3)</li>
-                            </ul>
-                        </div>
+                    <div class="info-card" id="modeInfo">
+                        <h4>🆓 免費模式特色</h4>
+                        <ul>
+                            <li>✅ 完全免費，無需註冊</li>
+                            <li>✅ 支援多種語音選項</li>
+                            <li>✅ 即時生成，無需等待</li>
+                            <li>✅ 可下載音頻檔案</li>
+                            <li>⚠️ 音質較基本</li>
+                            <li>⚠️ 音頻格式為 WebM (非 MP3)</li>
+                        </ul>
                     </div>
                 </div>
                 
                 <div class="script-editor">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <h3>📝 語音腳本編輯器</h3>
-                        <button type="button" class="clear-script-btn" id="clearScriptBtn">
-                            🗑️ 清空腳本
-                        </button>
+                    <h3>📝 語音腳本編輯器</h3>
+                    <div id="scriptItems">
+                        <div class="empty-state">
+                            <h4>📝 開始建立您的語音腳本</h4>
+                            <p>點擊下方按鈕新增文字段落或暫停時間</p>
+                        </div>
                     </div>
-                    <div id="scriptItems"></div>
                     
                     <div class="add-buttons">
-                        <button type="button" class="add-btn text-btn" id="addTextBtn">
+                        <button class="add-btn text-btn" id="addTextBtn">
                             ➕ 新增文字段落
                         </button>
-                        <button type="button" class="add-btn pause-btn" id="addPauseBtn">
+                        <button class="add-btn pause-btn" id="addPauseBtn">
                             ⏸️ 新增暫停
                         </button>
                     </div>
                     
-                    <button type="button" class="generate-btn" id="generateBtn">
+                    <button class="btn" id="generateBtn">
                         🎵 生成完整語音檔案
                     </button>
                 </div>
@@ -521,9 +483,9 @@
                 <h3>🎵 語音檔案已生成</h3>
                 
                 <div class="audio-player">
-                    <p>您的語音腳本已成功生成為 MP3 檔案：</p>
+                    <p>您的語音腳本已成功生成：</p>
                     <button class="play-btn" id="playBtn">▶️ 播放完整語音</button>
-                    <button class="download-btn" id="downloadBtn">⬇️ 下載 MP3 檔案</button>
+                    <button class="download-btn" id="downloadBtn">⬇️ 下載檔案</button>
                 </div>
                 
                 <div id="statusMessage"></div>
@@ -532,314 +494,275 @@
     </div>
 
     <script>
-        class ScriptBasedSpeechGenerator {
+        class SpeechGenerator {
             constructor() {
-                this.currentAudio = null;
-                this.currentBlob = null;
+                this.currentMode = 'free';
                 this.apiKey = '';
                 this.scriptItems = [];
                 this.itemCounter = 0;
-                this.isPremiumMode = false;
-                this.initializeElements();
-                this.bindEvents();
-                this.loadSavedApiKey();
-                this.loadSavedScript();
+                this.currentAudio = null;
+                this.currentBlob = null;
+                this.speechQueue = [];
+                
+                this.init();
             }
             
-            initializeElements() {
-                this.apiKeyInput = document.getElementById('apiKey');
-                this.scriptItemsContainer = document.getElementById('scriptItems');
-                this.addTextBtn = document.getElementById('addTextBtn');
-                this.addPauseBtn = document.getElementById('addPauseBtn');
-                this.clearScriptBtn = document.getElementById('clearScriptBtn');
-                this.generateBtn = document.getElementById('generateBtn');
-                this.resultSection = document.getElementById('resultSection');
-                this.playBtn = document.getElementById('playBtn');
-                this.downloadBtn = document.getElementById('downloadBtn');
-                this.statusMessage = document.getElementById('statusMessage');
-                this.freeModeBtn = document.getElementById('freeMode');
-                this.premiumModeBtn = document.getElementById('premiumMode');
-                this.apiSetup = document.getElementById('apiSetup');
-                this.modeInfo = document.getElementById('modeInfo');
+            init() {
+                this.bindEvents();
+                this.loadSavedData();
+                this.updateModeDisplay();
             }
             
             bindEvents() {
-                this.addTextBtn.addEventListener('click', () => this.addTextItem());
-                this.addPauseBtn.addEventListener('click', () => this.addPauseItem());
-                this.clearScriptBtn.addEventListener('click', () => this.clearScript());
-                this.generateBtn.addEventListener('click', () => this.generateScript());
-                this.playBtn.addEventListener('click', () => this.playAudio());
-                this.downloadBtn.addEventListener('click', () => this.downloadAudio());
-                this.apiKeyInput.addEventListener('input', (e) => this.saveApiKey(e.target.value));
-                this.freeModeBtn.addEventListener('click', () => this.switchToFreeMode());
-                this.premiumModeBtn.addEventListener('click', () => this.switchToPremiumMode());
+                // 模式切換按鈕
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const mode = e.target.dataset.mode;
+                        this.switchMode(mode);
+                    });
+                });
+                
+                // API Key 輸入
+                document.getElementById('apiKey').addEventListener('input', (e) => {
+                    this.apiKey = e.target.value.trim();
+                    this.saveApiKey();
+                });
+                
+                // 腳本編輯按鈕
+                document.getElementById('addTextBtn').addEventListener('click', () => {
+                    this.addTextItem();
+                });
+                
+                document.getElementById('addPauseBtn').addEventListener('click', () => {
+                    this.addPauseItem();
+                });
+                
+                // 生成和播放按鈕
+                document.getElementById('generateBtn').addEventListener('click', () => {
+                    this.generateSpeech();
+                });
+                
+                document.getElementById('playBtn').addEventListener('click', () => {
+                    this.playAudio();
+                });
+                
+                document.getElementById('downloadBtn').addEventListener('click', () => {
+                    this.downloadAudio();
+                });
             }
             
-            loadSavedApiKey() {
-                const savedKey = localStorage.getItem('googleAIApiKey');
-                if (savedKey) {
-                    this.apiKeyInput.value = savedKey;
-                    this.apiKey = savedKey;
-                    console.log('已載入儲存的 API Key');
-                }
-            }
-            
-            loadSavedScript() {
-                try {
-                    const savedScript = localStorage.getItem('speechScriptItems');
-                    if (savedScript) {
-                        const parsedScript = JSON.parse(savedScript);
-                        if (Array.isArray(parsedScript) && parsedScript.length > 0) {
-                            this.scriptItems = parsedScript;
-                            // 重新設定 itemCounter 為最大 ID + 1
-                            this.itemCounter = Math.max(...parsedScript.map(item => item.id), 0);
-                            console.log('已載入儲存的語音腳本，共', parsedScript.length, '個項目');
-                            this.renderScriptItems();
-                            this.showMessage('✅ 已自動載入上次的語音腳本！', 'success');
-                            return;
-                        }
-                    }
-                } catch (error) {
-                    console.error('載入儲存腳本時發生錯誤:', error);
-                    localStorage.removeItem('speechScriptItems'); // 清除損壞的資料
+            switchMode(mode) {
+                this.currentMode = mode;
+                
+                // 更新按鈕狀態
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+                
+                // 顯示/隱藏 API 設定
+                const apiSetup = document.getElementById('apiSetup');
+                if (mode === 'premium') {
+                    apiSetup.classList.add('show');
+                } else {
+                    apiSetup.classList.remove('show');
                 }
                 
-                // 如果沒有儲存的腳本或載入失敗，顯示空白狀態
-                this.showEmptyState();
+                this.updateModeDisplay();
+                this.renderScriptItems();
+                
+                console.log('切換到模式:', mode);
+            }
+            
+            updateModeDisplay() {
+                const modeInfo = document.getElementById('modeInfo');
+                
+                if (this.currentMode === 'premium') {
+                    modeInfo.innerHTML = `
+                        <h4>⭐ 高品質模式特色</h4>
+                        <ul>
+                            <li>✅ 專業級語音品質</li>
+                            <li>✅ 多種自然語音選項</li>
+                            <li>✅ 可下載高品質 MP3</li>
+                            <li>✅ 支援語音參數調整</li>
+                            <li>⚠️ 需要 Google Cloud API Key</li>
+                        </ul>
+                    `;
+                    modeInfo.className = 'info-card premium-info';
+                } else {
+                    modeInfo.innerHTML = `
+                        <h4>🆓 免費模式特色</h4>
+                        <ul>
+                            <li>✅ 完全免費，無需註冊</li>
+                            <li>✅ 支援多種語音選項</li>
+                            <li>✅ 即時生成，無需等待</li>
+                            <li>✅ 可下載音頻檔案</li>
+                            <li>⚠️ 音質較基本</li>
+                            <li>⚠️ 音頻格式為 WebM (非 MP3)</li>
+                        </ul>
+                    `;
+                    modeInfo.className = 'info-card';
+                }
+            }
+            
+            loadSavedData() {
+                // 載入 API Key
+                const savedKey = localStorage.getItem('speechApiKey');
+                if (savedKey) {
+                    this.apiKey = savedKey;
+                    document.getElementById('apiKey').value = savedKey;
+                }
+                
+                // 載入腳本
+                const savedScript = localStorage.getItem('speechScript');
+                if (savedScript) {
+                    try {
+                        this.scriptItems = JSON.parse(savedScript);
+                        this.itemCounter = Math.max(...this.scriptItems.map(item => item.id), 0);
+                        this.renderScriptItems();
+                    } catch (error) {
+                        console.error('載入腳本失敗:', error);
+                    }
+                }
+            }
+            
+            saveApiKey() {
+                if (this.apiKey) {
+                    localStorage.setItem('speechApiKey', this.apiKey);
+                } else {
+                    localStorage.removeItem('speechApiKey');
+                }
             }
             
             saveScript() {
-                try {
-                    localStorage.setItem('speechScriptItems', JSON.stringify(this.scriptItems));
-                    console.log('語音腳本已儲存到本機，共', this.scriptItems.length, '個項目');
-                } catch (error) {
-                    console.error('儲存腳本時發生錯誤:', error);
-                }
-            }
-            
-            clearScript() {
-                if (this.scriptItems.length === 0) {
-                    this.showMessage('腳本已經是空的了！', 'error');
-                    return;
-                }
-                
-                // 簡單的確認機制
-                const confirmClear = window.confirm('確定要清空所有腳本內容嗎？此操作無法復原。');
-                if (confirmClear) {
-                    this.scriptItems = [];
-                    this.itemCounter = 0;
-                    localStorage.removeItem('speechScriptItems');
-                    this.showEmptyState();
-                    this.showMessage('✅ 腳本已清空！', 'success');
-                }
-            }
-            
-            saveApiKey(key) {
-                this.apiKey = key.trim();
-                if (this.apiKey) {
-                    localStorage.setItem('googleAIApiKey', this.apiKey);
-                    console.log('API Key 已儲存到本地');
-                    this.showMessage('✅ API Key 已儲存！下次開啟網頁會自動載入', 'success');
-                } else {
-                    localStorage.removeItem('googleAIApiKey');
-                    console.log('API Key 已清除');
-                }
-            }
-            
-            switchToFreeMode() {
-                this.isPremiumMode = false;
-                this.freeModeBtn.classList.add('active');
-                this.premiumModeBtn.classList.remove('active');
-                this.apiSetup.style.display = 'none';
-                this.updateModeInfo();
-                this.renderScriptItems(); // 重新渲染以更新語音選項
-            }
-            
-            switchToPremiumMode() {
-                this.isPremiumMode = true;
-                this.premiumModeBtn.classList.add('active');
-                this.freeModeBtn.classList.remove('active');
-                this.apiSetup.style.display = 'block';
-                this.updateModeInfo();
-                this.renderScriptItems(); // 重新渲染以更新語音選項
-            }
-            
-            updateModeInfo() {
-                if (this.isPremiumMode) {
-                    this.modeInfo.innerHTML = `
-                        <div class="info-card premium-info">
-                            <h4>⭐ 高品質模式特色</h4>
-                            <ul>
-                                <li>✅ 專業級語音品質</li>
-                                <li>✅ 多種自然語音選項</li>
-                                <li>✅ 可下載高品質 MP3</li>
-                                <li>✅ 支援語音參數調整</li>
-                                <li>⚠️ 需要 Google Cloud API Key</li>
-                            </ul>
-                        </div>
-                    `;
-                } else {
-                    this.modeInfo.innerHTML = `
-                        <div class="info-card free-info">
-                            <h4>🆓 免費模式特色</h4>
-                            <ul>
-                                <li>✅ 完全免費，無需註冊</li>
-                                <li>✅ 支援多種語音選項</li>
-                                <li>✅ 即時生成，無需等待</li>
-                                <li>✅ 可下載音頻檔案 (WebM 格式)</li>
-                                <li>✅ 可下載詳細腳本文字檔</li>
-                                <li>⚠️ 音質較基本</li>
-                                <li>⚠️ 音頻格式為 WebM (非 MP3)</li>
-                            </ul>
-                        </div>
-                    `;
-                }
-            }
-            
-            getVoiceOptions(selectedVoice) {
-                if (this.isPremiumMode) {
-                    return `
-                        <optgroup label="🇺🇸 英語語音 (推薦)">
-                            <option value="en-US-Journey-D" ${selectedVoice === 'en-US-Journey-D' ? 'selected' : ''}>美式英語 (女性) - Journey 自然語音</option>
-                            <option value="en-US-Journey-F" ${selectedVoice === 'en-US-Journey-F' ? 'selected' : ''}>美式英語 (男性) - Journey 自然語音</option>
-                            <option value="en-US-Studio-O" ${selectedVoice === 'en-US-Studio-O' ? 'selected' : ''}>美式英語 (女性) - Studio 高品質</option>
-                            <option value="en-US-Studio-Q" ${selectedVoice === 'en-US-Studio-Q' ? 'selected' : ''}>美式英語 (男性) - Studio 高品質</option>
-                            <option value="en-US-Neural2-C" ${selectedVoice === 'en-US-Neural2-C' ? 'selected' : ''}>美式英語 (女性) - Neural2</option>
-                            <option value="en-US-Neural2-D" ${selectedVoice === 'en-US-Neural2-D' ? 'selected' : ''}>美式英語 (男性) - Neural2</option>
-                        </optgroup>
-                        <optgroup label="🇹🇼 台灣中文">
-                            <option value="cmn-TW-Standard-A" ${selectedVoice === 'cmn-TW-Standard-A' ? 'selected' : ''}>台灣國語 (女性) - 標準</option>
-                            <option value="cmn-TW-Standard-B" ${selectedVoice === 'cmn-TW-Standard-B' ? 'selected' : ''}>台灣國語 (男性) - 標準</option>
-                            <option value="cmn-TW-Wavenet-A" ${selectedVoice === 'cmn-TW-Wavenet-A' ? 'selected' : ''}>台灣國語 (女性) - WaveNet 高品質</option>
-                            <option value="cmn-TW-Wavenet-B" ${selectedVoice === 'cmn-TW-Wavenet-B' ? 'selected' : ''}>台灣國語 (男性) - WaveNet 高品質</option>
-                        </optgroup>
-                    `;
-                } else {
-                    return `
-                        <optgroup label="🇺🇸 英語語音">
-                            <option value="Microsoft Zira - English (United States)" ${selectedVoice === 'Microsoft Zira - English (United States)' ? 'selected' : ''}>美式英語 (女性)</option>
-                            <option value="Microsoft David - English (United States)" ${selectedVoice === 'Microsoft David - English (United States)' ? 'selected' : ''}>美式英語 (男性)</option>
-                            <option value="Google US English" ${selectedVoice === 'Google US English' ? 'selected' : ''}>Google 美式英語</option>
-                            <option value="native" ${selectedVoice === 'native' ? 'selected' : ''}>系統預設英語</option>
-                        </optgroup>
-                        <optgroup label="🇹🇼 中文語音">
-                            <option value="Microsoft Hanhan - Chinese (Taiwan)" ${selectedVoice === 'Microsoft Hanhan - Chinese (Taiwan)' ? 'selected' : ''}>台灣中文 (女性)</option>
-                            <option value="Microsoft Zhiwei - Chinese (Taiwan)" ${selectedVoice === 'Microsoft Zhiwei - Chinese (Taiwan)' ? 'selected' : ''}>台灣中文 (男性)</option>
-                            <option value="Google 國語（臺灣）" ${selectedVoice === 'Google 國語（臺灣）' ? 'selected' : ''}>Google 台灣國語</option>
-                        </optgroup>
-                    `;
-                }
-            }
-            
-            showEmptyState() {
-                if (this.scriptItems.length === 0) {
-                    this.scriptItemsContainer.innerHTML = `
-                        <div class="empty-state">
-                            <h4>📝 開始建立您的語音腳本</h4>
-                            <p>點擊下方按鈕新增文字段落或暫停時間</p>
-                            <p style="color: #28a745; font-weight: 600;">💾 您的腳本會自動儲存在這台電腦上</p>
-                        </div>
-                    `;
-                }
+                localStorage.setItem('speechScript', JSON.stringify(this.scriptItems));
             }
             
             addTextItem() {
-                const itemId = ++this.itemCounter;
-                const defaultVoice = this.isPremiumMode ? 'en-US-Journey-D' : 'Microsoft Zira - English (United States)';
                 const item = {
-                    id: itemId,
+                    id: ++this.itemCounter,
                     type: 'text',
                     text: '',
-                    voice: defaultVoice
+                    voice: this.getDefaultVoice()
                 };
                 
                 this.scriptItems.push(item);
                 this.renderScriptItems();
-                this.saveScript(); // 自動儲存
+                this.saveScript();
             }
             
             addPauseItem() {
-                const itemId = ++this.itemCounter;
                 const item = {
-                    id: itemId,
+                    id: ++this.itemCounter,
                     type: 'pause',
                     duration: 2.0
                 };
                 
                 this.scriptItems.push(item);
                 this.renderScriptItems();
-                this.saveScript(); // 自動儲存
+                this.saveScript();
+            }
+            
+            getDefaultVoice() {
+                return this.currentMode === 'premium' ? 'en-US-Journey-D' : 'native';
+            }
+            
+            getVoiceOptions(selectedVoice) {
+                if (this.currentMode === 'premium') {
+                    return `
+                        <optgroup label="🇺🇸 英語語音">
+                            <option value="en-US-Journey-D" ${selectedVoice === 'en-US-Journey-D' ? 'selected' : ''}>美式英語 (女性) - Journey</option>
+                            <option value="en-US-Journey-F" ${selectedVoice === 'en-US-Journey-F' ? 'selected' : ''}>美式英語 (男性) - Journey</option>
+                            <option value="en-US-Studio-O" ${selectedVoice === 'en-US-Studio-O' ? 'selected' : ''}>美式英語 (女性) - Studio</option>
+                            <option value="en-US-Studio-Q" ${selectedVoice === 'en-US-Studio-Q' ? 'selected' : ''}>美式英語 (男性) - Studio</option>
+                        </optgroup>
+                        <optgroup label="🇹🇼 台灣中文">
+                            <option value="cmn-TW-Standard-A" ${selectedVoice === 'cmn-TW-Standard-A' ? 'selected' : ''}>台灣國語 (女性)</option>
+                            <option value="cmn-TW-Standard-B" ${selectedVoice === 'cmn-TW-Standard-B' ? 'selected' : ''}>台灣國語 (男性)</option>
+                        </optgroup>
+                    `;
+                } else {
+                    return `
+                        <optgroup label="🇺🇸 英語語音">
+                            <option value="native" ${selectedVoice === 'native' ? 'selected' : ''}>系統預設英語</option>
+                            <option value="en-US-female" ${selectedVoice === 'en-US-female' ? 'selected' : ''}>美式英語 (女性)</option>
+                            <option value="en-US-male" ${selectedVoice === 'en-US-male' ? 'selected' : ''}>美式英語 (男性)</option>
+                        </optgroup>
+                        <optgroup label="🇹🇼 中文語音">
+                            <option value="zh-TW-female" ${selectedVoice === 'zh-TW-female' ? 'selected' : ''}>台灣中文 (女性)</option>
+                            <option value="zh-TW-male" ${selectedVoice === 'zh-TW-male' ? 'selected' : ''}>台灣中文 (男性)</option>
+                        </optgroup>
+                    `;
+                }
             }
             
             renderScriptItems() {
+                const container = document.getElementById('scriptItems');
+                
                 if (this.scriptItems.length === 0) {
-                    this.showEmptyState();
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h4>📝 開始建立您的語音腳本</h4>
+                            <p>點擊下方按鈕新增文字段落或暫停時間</p>
+                        </div>
+                    `;
                     return;
                 }
                 
-                this.scriptItemsContainer.innerHTML = this.scriptItems.map(item => {
+                container.innerHTML = this.scriptItems.map(item => {
                     if (item.type === 'text') {
-                        return this.renderTextItem(item);
+                        return `
+                            <div class="script-item text-item" data-id="${item.id}" draggable="true">
+                                <div class="drag-handle">⋮⋮</div>
+                                <div class="item-header">
+                                    <span class="item-type">🗣️ 文字段落</span>
+                                    <button class="delete-btn" onclick="speechGen.deleteItem(${item.id})">刪除</button>
+                                </div>
+                                <textarea 
+                                    class="text-input" 
+                                    placeholder="請輸入要朗讀的文字..."
+                                    rows="3"
+                                    onchange="speechGen.updateItemText(${item.id}, this.value)"
+                                >${item.text}</textarea>
+                                <select 
+                                    class="voice-select" 
+                                    onchange="speechGen.updateItemVoice(${item.id}, this.value)"
+                                >
+                                    ${this.getVoiceOptions(item.voice)}
+                                </select>
+                            </div>
+                        `;
                     } else {
-                        return this.renderPauseItem(item);
+                        return `
+                            <div class="script-item pause-item" data-id="${item.id}" draggable="true">
+                                <div class="drag-handle">⋮⋮</div>
+                                <div class="item-header">
+                                    <span class="item-type">⏸️ 暫停時間</span>
+                                    <button class="delete-btn" onclick="speechGen.deleteItem(${item.id})">刪除</button>
+                                </div>
+                                <div class="pause-controls">
+                                    <input 
+                                        type="range" 
+                                        class="pause-slider" 
+                                        min="0.5" 
+                                        max="10" 
+                                        step="0.5" 
+                                        value="${item.duration}"
+                                        oninput="speechGen.updatePauseDuration(${item.id}, this.value)"
+                                    >
+                                    <span class="pause-value">${item.duration.toFixed(1)} 秒</span>
+                                </div>
+                            </div>
+                        `;
                     }
                 }).join('');
                 
-                // 重新綁定事件
-                this.bindItemEvents();
-            }
-            
-            renderTextItem(item) {
-                return `
-                    <div class="script-item text-item" data-id="${item.id}" draggable="true">
-                        <div class="drag-handle">⋮⋮</div>
-                        <div class="item-header">
-                            <span class="item-type">🗣️ 文字段落</span>
-                            <button class="delete-btn" onclick="generator.deleteItem(${item.id})">刪除</button>
-                        </div>
-                        <textarea 
-                            class="text-input" 
-                            placeholder="請輸入要朗讀的文字..."
-                            rows="3"
-                            onchange="generator.updateItemText(${item.id}, this.value)"
-                        >${item.text}</textarea>
-                        <select 
-                            class="voice-select" 
-                            onchange="generator.updateItemVoice(${item.id}, this.value)"
-                        >
-                            ${generator.getVoiceOptions(item.voice)}
-                        </select>
-                    </div>
-                `;
-            }
-            
-            renderPauseItem(item) {
-                return `
-                    <div class="script-item pause-item" data-id="${item.id}" draggable="true">
-                        <div class="drag-handle">⋮⋮</div>
-                        <div class="item-header">
-                            <span class="item-type">⏸️ 暫停時間</span>
-                            <button class="delete-btn" onclick="generator.deleteItem(${item.id})">刪除</button>
-                        </div>
-                        <div class="pause-controls">
-                            <input 
-                                type="range" 
-                                class="pause-slider" 
-                                min="0.5" 
-                                max="10" 
-                                step="0.5" 
-                                value="${item.duration}"
-                                oninput="generator.updatePauseDuration(${item.id}, this.value)"
-                            >
-                            <span class="pause-value">${item.duration.toFixed(1)} 秒</span>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            bindItemEvents() {
                 // 綁定拖拽事件
-                const scriptItems = this.scriptItemsContainer.querySelectorAll('.script-item');
+                this.bindDragEvents();
+            }
+            
+            bindDragEvents() {
+                const scriptItems = document.querySelectorAll('.script-item');
                 scriptItems.forEach(item => {
                     item.addEventListener('dragstart', (e) => this.handleDragStart(e));
                     item.addEventListener('dragover', (e) => this.handleDragOver(e));
@@ -850,42 +773,6 @@
                 });
             }
             
-            updateItemText(itemId, text) {
-                const item = this.scriptItems.find(i => i.id === itemId);
-                if (item) {
-                    item.text = text;
-                    this.saveScript(); // 自動儲存
-                }
-            }
-            
-            updateItemVoice(itemId, voice) {
-                const item = this.scriptItems.find(i => i.id === itemId);
-                if (item) {
-                    item.voice = voice;
-                    this.saveScript(); // 自動儲存
-                }
-            }
-            
-            updatePauseDuration(itemId, duration) {
-                const item = this.scriptItems.find(i => i.id === itemId);
-                if (item) {
-                    item.duration = parseFloat(duration);
-                    // 更新顯示
-                    const pauseValue = document.querySelector(`[data-id="${itemId}"] .pause-value`);
-                    if (pauseValue) {
-                        pauseValue.textContent = `${parseFloat(duration).toFixed(1)} 秒`;
-                    }
-                    this.saveScript(); // 自動儲存
-                }
-            }
-            
-            deleteItem(itemId) {
-                this.scriptItems = this.scriptItems.filter(item => item.id !== itemId);
-                this.renderScriptItems();
-                this.saveScript(); // 自動儲存
-            }
-            
-            // 拖拽處理函數
             handleDragStart(e) {
                 this.draggedItemId = parseInt(e.target.dataset.id);
                 e.target.classList.add('dragging');
@@ -914,14 +801,17 @@
             
             handleDrop(e) {
                 e.preventDefault();
-                const targetId = parseInt(e.target.closest('.script-item').dataset.id);
+                const targetElement = e.target.closest('.script-item');
+                if (!targetElement) return;
+                
+                const targetId = parseInt(targetElement.dataset.id);
                 
                 if (targetId && targetId !== this.draggedItemId) {
                     this.reorderItems(this.draggedItemId, targetId);
                 }
                 
                 // 清除所有拖拽樣式
-                this.scriptItemsContainer.querySelectorAll('.script-item').forEach(item => {
+                document.querySelectorAll('.script-item').forEach(item => {
                     item.classList.remove('drag-over');
                 });
             }
@@ -931,7 +821,7 @@
                 this.draggedItemId = null;
                 
                 // 清除所有拖拽樣式
-                this.scriptItemsContainer.querySelectorAll('.script-item').forEach(item => {
+                document.querySelectorAll('.script-item').forEach(item => {
                     item.classList.remove('drag-over', 'dragging');
                 });
             }
@@ -950,645 +840,259 @@
                 
                 // 重新渲染
                 this.renderScriptItems();
-                this.saveScript(); // 自動儲存
+                this.saveScript();
                 
                 // 顯示成功訊息
                 this.showMessage('✅ 段落順序已更新！', 'success');
             }
             
-            async generateScript() {
-                if (this.isPremiumMode && !this.apiKey) {
-                    this.showMessage('高品質模式需要 Google Cloud API Key，請先輸入或切換到免費模式', 'error');
-                    return;
+            updateItemText(itemId, text) {
+                const item = this.scriptItems.find(i => i.id === itemId);
+                if (item) {
+                    item.text = text;
+                    this.saveScript();
                 }
-                
+            }
+            
+            updateItemVoice(itemId, voice) {
+                const item = this.scriptItems.find(i => i.id === itemId);
+                if (item) {
+                    item.voice = voice;
+                    this.saveScript();
+                }
+            }
+            
+            updatePauseDuration(itemId, duration) {
+                const item = this.scriptItems.find(i => i.id === itemId);
+                if (item) {
+                    item.duration = parseFloat(duration);
+                    const pauseValue = document.querySelector(`[onclick*="${itemId}"] .pause-value`);
+                    if (pauseValue) {
+                        pauseValue.textContent = `${parseFloat(duration).toFixed(1)} 秒`;
+                    }
+                    this.saveScript();
+                }
+            }
+            
+            deleteItem(itemId) {
+                this.scriptItems = this.scriptItems.filter(item => item.id !== itemId);
+                this.renderScriptItems();
+                this.saveScript();
+            }
+            
+            async generateSpeech() {
                 if (this.scriptItems.length === 0) {
-                    this.showMessage('請先新增一些文字段落或暫停時間', 'error');
+                    this.showMessage('請先新增一些文字段落', 'error');
                     return;
                 }
                 
-                // 檢查是否有文字內容
                 const hasText = this.scriptItems.some(item => item.type === 'text' && item.text.trim());
                 if (!hasText) {
                     this.showMessage('請至少新增一個包含文字的段落', 'error');
                     return;
                 }
                 
-                this.generateBtn.disabled = true;
-                this.generateBtn.textContent = '🔄 生成中...';
-                this.showMessage('正在生成語音檔案，請稍候...', 'loading');
+                if (this.currentMode === 'premium' && !this.apiKey) {
+                    this.showMessage('高品質模式需要 Google Cloud API Key', 'error');
+                    return;
+                }
+                
+                const generateBtn = document.getElementById('generateBtn');
+                generateBtn.disabled = true;
+                generateBtn.textContent = '🔄 生成中...';
                 
                 try {
-                    if (this.isPremiumMode) {
-                        await this.generateSpeechWithAPI();
+                    if (this.currentMode === 'premium') {
+                        await this.generateWithAPI();
                     } else {
-                        await this.generateSpeechWithBrowser();
+                        await this.generateWithBrowser();
                     }
+                    
+                    this.showResults();
+                    this.showMessage('語音檔案生成完成！', 'success');
+                    
                 } catch (error) {
-                    this.showMessage(`生成語音時發生錯誤：${error.message}`, 'error');
-                    console.error('Speech generation error:', error);
+                    console.error('生成失敗:', error);
+                    this.showMessage(`生成失敗：${error.message}`, 'error');
                 } finally {
-                    this.generateBtn.disabled = false;
-                    this.generateBtn.textContent = '🎵 生成完整語音檔案';
+                    generateBtn.disabled = false;
+                    generateBtn.textContent = '🎵 生成完整語音檔案';
                 }
             }
             
-            async generateSpeechWithAPI() {
-                console.log('開始生成語音，API Key:', this.apiKey ? '已設定' : '未設定');
-                console.log('腳本項目數量:', this.scriptItems.length);
+            async generateWithAPI() {
+                console.log('使用 Google API 生成語音');
                 
-                // 建立簡化的文字內容（不使用複雜的 SSML）
-                let textContent = '';
+                const audioSegments = [];
                 
                 for (const item of this.scriptItems) {
                     if (item.type === 'text' && item.text.trim()) {
-                        textContent += item.text.trim() + ' ';
-                        console.log('添加文字:', item.text.trim());
-                    } else if (item.type === 'pause') {
-                        // 用句號來模擬暫停
-                        textContent += '. ';
-                        console.log('添加暫停:', item.duration + '秒');
-                    }
-                }
-                
-                if (!textContent.trim()) {
-                    throw new Error('沒有找到要朗讀的文字內容');
-                }
-                
-                console.log('最終文字內容:', textContent);
-                
-                // 使用第一個文字項目的語音設定
-                const firstTextItem = this.scriptItems.find(item => item.type === 'text');
-                const voiceName = firstTextItem ? firstTextItem.voice : 'en-US-Journey-D';
-                
-                // 根據語音名稱自動判斷語言代碼
-                const getLanguageCode = (voiceName) => {
-                    if (voiceName.startsWith('en-US') || voiceName.includes('English (United States)')) return 'en-US';
-                    if (voiceName.startsWith('en-GB') || voiceName.includes('English (United Kingdom)')) return 'en-GB';
-                    if (voiceName.startsWith('cmn-TW') || voiceName.includes('Chinese (Taiwan)')) return 'cmn-TW';
-                    return 'en-US'; // 預設
-                };
-                
-                const languageCode = getLanguageCode(voiceName);
-                
-                try {
-                    console.log('發送 API 請求...');
-                    const requestBody = {
-                        input: {
-                            text: textContent.trim()
-                        },
-                        voice: {
-                            languageCode: languageCode,
-                            name: voiceName
-                        },
-                        audioConfig: {
-                            audioEncoding: 'MP3',
-                            speakingRate: 0.9,
-                            pitch: 0.0,
-                            volumeGainDb: 0.0
+                        const languageCode = item.voice.startsWith('en-') ? 'en-US' : 'cmn-TW';
+                        
+                        const response = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${this.apiKey}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                input: { text: item.text.trim() },
+                                voice: { languageCode, name: item.voice },
+                                audioConfig: { audioEncoding: 'MP3' }
+                            })
+                        });
+                        
+                        if (!response.ok) {
+                            const error = await response.json();
+                            throw new Error(error.error?.message || 'API 請求失敗');
                         }
-                    };
-                    
-                    console.log('請求內容:', requestBody);
-                    
-                    const response = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${this.apiKey}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(requestBody)
-                    });
-                    
-                    console.log('API 回應狀態:', response.status);
-                    
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        console.error('API 錯誤回應:', errorText);
-                        let errorData;
-                        try {
-                            errorData = JSON.parse(errorText);
-                        } catch (e) {
-                            throw new Error(`API 請求失敗 (${response.status}): ${errorText}`);
+                        
+                        const data = await response.json();
+                        const audioBytes = atob(data.audioContent);
+                        const audioArray = new Uint8Array(audioBytes.length);
+                        for (let i = 0; i < audioBytes.length; i++) {
+                            audioArray[i] = audioBytes.charCodeAt(i);
                         }
-                        throw new Error(errorData.error?.message || `API 請求失敗 (${response.status})`);
-                    }
-                    
-                    const data = await response.json();
-                    console.log('API 回應成功，音頻內容長度:', data.audioContent ? data.audioContent.length : 0);
-                    
-                    if (!data.audioContent) {
-                        throw new Error('API 回應中沒有音頻內容');
-                    }
-                    
-                    // 將 base64 音頻轉換為 Blob
-                    const audioBytes = atob(data.audioContent);
-                    const audioArray = new Uint8Array(audioBytes.length);
-                    for (let i = 0; i < audioBytes.length; i++) {
-                        audioArray[i] = audioBytes.charCodeAt(i);
-                    }
-                    
-                    this.currentBlob = new Blob([audioArray], { type: 'audio/mpeg' });
-                    this.currentAudio = new Audio(URL.createObjectURL(this.currentBlob));
-                    
-                    console.log('音頻檔案生成成功，大小:', this.currentBlob.size, 'bytes');
-                    
-                    // 顯示結果
-                    this.displayResults();
-                    
-                } catch (error) {
-                    console.error('Google API 錯誤:', error);
-                    
-                    // 檢查不同類型的 API 錯誤
-                    if (error.message.includes('has not been used') || error.message.includes('is disabled')) {
-                        this.showMessage(`
-                            ❌ <strong>Google Text-to-Speech API 尚未啟用！</strong><br><br>
-                            <strong>📋 請按照以下步驟設定：</strong><br>
-                            1. 前往 <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" style="color: #007bff; font-weight: bold;">Google Cloud Console</a><br>
-                            2. 選擇或建立一個專案<br>
-                            3. 啟用 <a href="https://console.cloud.google.com/apis/library/texttospeech.googleapis.com" target="_blank" rel="noopener noreferrer" style="color: #007bff; font-weight: bold;">Text-to-Speech API</a><br>
-                            4. 到 <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" style="color: #007bff; font-weight: bold;">憑證頁面</a> 建立 API Key<br>
-                            5. 將新的 API Key 貼到上方輸入框<br><br>
-                            💡 <strong>提示：</strong>啟用 API 後可能需要等待幾分鐘才能使用<br>
-                            🔄 <strong>或者您可以手動切換到免費模式</strong>
-                        `, 'error');
-                    } else if (error.message.includes('blocked') || error.message.includes('PERMISSION_DENIED') || error.message.includes('API_KEY_SERVICE_BLOCKED')) {
-                        this.showMessage(`
-                            🚫 <strong>API 服務被阻擋！(錯誤代碼: 403)</strong><br><br>
-                            您的 Google Cloud 專案中 Text-to-Speech API 服務被阻擋。這通常是因為：<br><br>
-                            
-                            <strong>🔧 主要解決方案：</strong><br>
-                            1. <strong>啟用計費帳戶：</strong>前往 <a href="https://console.cloud.google.com/billing" target="_blank" rel="noopener noreferrer" style="color: #007bff; font-weight: bold;">Google Cloud 計費頁面</a><br>
-                            &nbsp;&nbsp;&nbsp;• 新專案必須啟用計費才能使用 Text-to-Speech API<br>
-                            &nbsp;&nbsp;&nbsp;• 即使在免費額度內也需要綁定信用卡<br><br>
-                            
-                            2. <strong>重新啟用 API：</strong>前往 <a href="https://console.cloud.google.com/apis/library/texttospeech.googleapis.com" target="_blank" rel="noopener noreferrer" style="color: #007bff; font-weight: bold;">Text-to-Speech API 頁面</a><br>
-                            &nbsp;&nbsp;&nbsp;• 如果顯示「已啟用」，請先停用再重新啟用<br>
-                            &nbsp;&nbsp;&nbsp;• 等待 2-5 分鐘讓設定生效<br><br>
-                            
-                            3. <strong>重新建立 API Key：</strong>到 <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" style="color: #007bff; font-weight: bold;">憑證頁面</a><br>
-                            &nbsp;&nbsp;&nbsp;• 刪除舊的 API Key<br>
-                            &nbsp;&nbsp;&nbsp;• 建立新的 API Key<br>
-                            &nbsp;&nbsp;&nbsp;• 確保 API Key 有正確的權限<br><br>
-                            
-                            🔄 <strong>立即解決方案：手動切換到免費模式使用瀏覽器內建語音</strong>
-                        `, 'error');
-                    } else if (error.message.includes('API key not valid') || error.message.includes('INVALID_ARGUMENT') || error.message.includes('400')) {
-                        this.showMessage(`
-                            🔑 <strong>API Key 無效！</strong><br><br>
-                            <strong>請檢查以下項目：</strong><br>
-                            • API Key 是否正確複製（沒有多餘空格）<br>
-                            • API Key 是否已過期或被刪除<br>
-                            • 是否使用了正確的 Google Cloud 專案<br>
-                            • API Key 是否有正確的權限設定<br><br>
-                            
-                            <strong>🔧 解決步驟：</strong><br>
-                            1. 到 <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" style="color: #007bff; font-weight: bold;">Google Cloud 憑證頁面</a><br>
-                            2. 檢查現有 API Key 或建立新的 API Key<br>
-                            3. 確保 API Key 有 Text-to-Speech API 權限<br>
-                            4. 重新複製並貼上新的 API Key<br><br>
-                            
-                            🔄 <strong>或者您可以手動切換到免費模式</strong>
-                        `, 'error');
-                    } else {
-                        // 其他 API 錯誤，不自動切換
-                        this.showMessage(`
-                            ❌ <strong>Google API 發生錯誤：</strong>${error.message}<br><br>
-                            <strong>建議解決方案：</strong><br>
-                            • 檢查網路連線是否正常<br>
-                            • 確認 API Key 設定正確<br>
-                            • 檢查 Google Cloud 專案狀態<br>
-                            • 確認 Text-to-Speech API 已啟用<br><br>
-                            🔄 <strong>您可以手動切換到免費模式使用瀏覽器內建語音</strong>
-                        `, 'error');
+                        
+                        audioSegments.push(audioArray);
                     }
                 }
+                
+                // 簡單合併音頻
+                const totalSize = audioSegments.reduce((sum, segment) => sum + segment.length, 0);
+                const mergedArray = new Uint8Array(totalSize);
+                let offset = 0;
+                
+                for (const segment of audioSegments) {
+                    mergedArray.set(segment, offset);
+                    offset += segment.length;
+                }
+                
+                this.currentBlob = new Blob([mergedArray], { type: 'audio/mpeg' });
+                this.currentAudio = new Audio(URL.createObjectURL(this.currentBlob));
             }
             
-            async generateSpeechWithBrowser() {
+            async generateWithBrowser() {
+                console.log('使用瀏覽器語音合成');
+                
                 if (!('speechSynthesis' in window)) {
-                    throw new Error('您的瀏覽器不支援語音合成功能');
+                    throw new Error('瀏覽器不支援語音合成');
                 }
                 
-                console.log('使用瀏覽器內建語音合成');
-                
-                // 停止任何正在播放的語音
-                speechSynthesis.cancel();
-                
-                // 等待語音列表載入完成
+                // 等待語音載入
                 await this.waitForVoices();
                 
-                // 建立語音腳本
                 this.speechQueue = [];
                 
                 for (const item of this.scriptItems) {
                     if (item.type === 'text' && item.text.trim()) {
                         const utterance = new SpeechSynthesisUtterance(item.text.trim());
-                        
-                        // 設定語音參數
                         utterance.rate = 0.9;
                         utterance.pitch = 1.0;
                         utterance.volume = 1.0;
                         
-                        // 嘗試設定指定的語音
+                        // 設定語音
                         const voices = speechSynthesis.getVoices();
-                        let selectedVoice = null;
-                        
-                        console.log('可用語音數量:', voices.length);
-                        console.log('前5個語音:', voices.slice(0, 5).map(v => `${v.name} (${v.lang})`));
-                        
-                        // 根據語音名稱設定語言和語音 - 改進版本
-                        if (item.voice === 'native') {
-                            // 原生語音：優先選擇英語
-                            selectedVoice = voices.find(voice => 
-                                voice.lang.startsWith('en-US') || voice.lang.startsWith('en')
-                            ) || voices.find(voice => 
-                                voice.lang.includes('zh-TW') || voice.lang.includes('zh')
-                            ) || voices[0];
-                            utterance.lang = selectedVoice ? selectedVoice.lang : 'en-US';
-                            
-                        } else if (item.voice.includes('Chinese (Taiwan)') || item.voice.includes('臺灣') || item.voice.includes('台灣') || item.voice.includes('Hanhan') || item.voice.includes('Zhiwei')) {
-                            // 台灣中文語音
-                            selectedVoice = voices.find(voice => 
-                                voice.name.includes('Hanhan') || 
-                                voice.name.includes('Zhiwei') ||
-                                (voice.lang.includes('zh-TW') || voice.lang.includes('zh-Hant'))
-                            ) || voices.find(voice => voice.lang.includes('zh'));
-                            utterance.lang = 'zh-TW';
-                            
-                        } else if (item.voice.includes('English') || item.voice.includes('Zira') || item.voice.includes('David') || item.voice.includes('US English')) {
-                            // 英語語音
-                            selectedVoice = voices.find(voice => 
-                                voice.name.includes('Zira') || 
-                                voice.name.includes('David') ||
-                                voice.lang.startsWith('en-US')
-                            ) || voices.find(voice => voice.lang.startsWith('en'));
-                            utterance.lang = 'en-US';
-                            
-                        } else {
-                            // 嘗試直接匹配語音名稱
-                            selectedVoice = voices.find(voice => 
-                                voice.name.includes(item.voice) || 
-                                voice.name === item.voice
-                            );
-                            
+                        if (item.voice !== 'native' && voices.length > 0) {
+                            const selectedVoice = this.findBestVoice(voices, item.voice);
                             if (selectedVoice) {
+                                utterance.voice = selectedVoice;
                                 utterance.lang = selectedVoice.lang;
-                            } else {
-                                // 根據文字內容智能判斷語言
-                                const hasChineseChars = /[\u4e00-\u9fff]/.test(item.text);
-                                const hasEnglishWords = /[a-zA-Z]/.test(item.text);
-                                
-                                if (hasChineseChars && !hasEnglishWords) {
-                                    // 純中文
-                                    selectedVoice = voices.find(voice => 
-                                        voice.lang.includes('zh-TW') || voice.lang.includes('zh')
-                                    ) || voices[0];
-                                    utterance.lang = 'zh-TW';
-                                } else {
-                                    // 英文或混合文字，使用英語
-                                    selectedVoice = voices.find(voice => 
-                                        voice.lang.startsWith('en-US') || voice.lang.startsWith('en')
-                                    ) || voices[0];
-                                    utterance.lang = 'en-US';
-                                }
                             }
                         }
                         
-                        if (selectedVoice) {
-                            utterance.voice = selectedVoice;
-                            console.log('選擇語音:', selectedVoice.name, '語言:', selectedVoice.lang);
-                        } else {
-                            console.log('使用預設語音，語言:', utterance.lang);
-                        }
-                        
-                        this.speechQueue.push({
-                            type: 'speech',
-                            utterance: utterance,
-                            text: item.text.trim()
-                        });
-                        
-                        console.log('添加語音:', item.text.trim(), '語音:', selectedVoice?.name || '預設');
+                        this.speechQueue.push({ type: 'speech', utterance, text: item.text.trim() });
                         
                     } else if (item.type === 'pause') {
-                        this.speechQueue.push({
-                            type: 'pause',
-                            duration: item.duration * 1000 // 轉換為毫秒
-                        });
-                        console.log('添加暫停:', item.duration + '秒');
+                        this.speechQueue.push({ type: 'pause', duration: item.duration * 1000 });
                     }
                 }
                 
-                if (this.speechQueue.length === 0) {
-                    throw new Error('沒有找到要朗讀的內容');
-                }
-                
-                // 設定播放控制
+                // 建立播放控制
                 this.currentAudio = {
                     play: () => this.playBrowserSpeech(),
-                    pause: () => speechSynthesis.cancel(),
-                    currentTime: 0,
-                    onended: null,
-                    onerror: null
+                    pause: () => speechSynthesis.cancel()
                 };
                 
-                // 測試語音播放
-                await this.testSpeechSynthesis();
-                
-                // 生成音頻檔案
-                await this.generateAudioFromBrowserSpeech();
-                
-                // 顯示結果
-                this.displayResults();
-                this.showMessage('🎵 免費語音已準備完成！您可以播放試聽或下載音頻檔案。', 'success');
+                // 生成文字檔案作為下載內容
+                this.generateTextFile();
             }
             
-            // 等待語音列表載入的輔助函數
             waitForVoices() {
                 return new Promise((resolve) => {
                     const voices = speechSynthesis.getVoices();
                     if (voices.length > 0) {
-                        console.log('語音列表已載入，共', voices.length, '個語音');
                         resolve();
                         return;
                     }
                     
-                    console.log('等待語音列表載入...');
-                    let attempts = 0;
-                    const maxAttempts = 10;
-                    
-                    const checkVoices = () => {
-                        const voices = speechSynthesis.getVoices();
-                        attempts++;
-                        
-                        if (voices.length > 0) {
-                            console.log('語音列表載入完成，共', voices.length, '個語音');
-                            resolve();
-                        } else if (attempts >= maxAttempts) {
-                            console.log('語音列表載入超時，使用預設設定');
-                            resolve();
-                        } else {
-                            setTimeout(checkVoices, 100);
-                        }
-                    };
-                    
-                    // 監聽語音變更事件
-                    speechSynthesis.addEventListener('voiceschanged', () => {
-                        console.log('語音列表已更新');
-                        resolve();
-                    }, { once: true });
-                    
-                    // 開始檢查
-                    setTimeout(checkVoices, 100);
+                    speechSynthesis.addEventListener('voiceschanged', resolve, { once: true });
+                    setTimeout(resolve, 1000); // 超時保護
                 });
             }
             
-            async testSpeechSynthesis() {
-                try {
-                    console.log('測試語音合成功能...');
-                    
-                    // 檢查瀏覽器支援
-                    if (!window.speechSynthesis) {
-                        throw new Error('瀏覽器不支援語音合成');
-                    }
-                    
-                    // 測試簡單語音
-                    const testUtterance = new SpeechSynthesisUtterance('測試');
-                    testUtterance.volume = 0.1; // 低音量測試
-                    testUtterance.rate = 1.0;
-                    
-                    const voices = speechSynthesis.getVoices();
-                    if (voices.length > 0) {
-                        testUtterance.voice = voices[0];
-                        console.log('測試語音:', voices[0].name);
-                    }
-                    
-                    // 快速測試播放
-                    speechSynthesis.speak(testUtterance);
-                    
-                    // 等待測試完成
-                    await new Promise((resolve) => {
-                        testUtterance.onend = resolve;
-                        testUtterance.onerror = resolve;
-                        setTimeout(resolve, 1000); // 最多等待1秒
-                    });
-                    
-                    console.log('語音測試完成');
-                    
-                } catch (error) {
-                    console.error('語音測試失敗:', error);
+            findBestVoice(voices, voiceId) {
+                if (voiceId.includes('en-US') || voiceId.includes('female') || voiceId.includes('male')) {
+                    return voices.find(v => v.lang.startsWith('en-US') || v.lang.startsWith('en')) || voices[0];
+                } else if (voiceId.includes('zh-TW')) {
+                    return voices.find(v => v.lang.includes('zh-TW') || v.lang.includes('zh')) || voices[0];
                 }
-            }
-            
-            async generateAudioFromBrowserSpeech() {
-                try {
-                    console.log('準備音頻錄製功能...');
-                    
-                    // 檢查 MediaRecorder 支援
-                    if (!window.MediaRecorder) {
-                        console.log('瀏覽器不支援 MediaRecorder，跳過音頻錄製');
-                        return;
-                    }
-                    
-                    // 建立音頻上下文
-                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    
-                    // 檢查支援的 MIME 類型
-                    let mimeType = 'audio/webm';
-                    if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
-                        mimeType = 'audio/webm;codecs=opus';
-                    } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
-                        mimeType = 'audio/mp4';
-                    } else if (MediaRecorder.isTypeSupported('audio/ogg')) {
-                        mimeType = 'audio/ogg';
-                    }
-                    
-                    console.log('使用 MIME 類型:', mimeType);
-                    
-                    // 建立靜音音頻流用於錄製
-                    const destination = audioContext.createMediaStreamDestination();
-                    const oscillator = audioContext.createOscillator();
-                    const gainNode = audioContext.createGain();
-                    
-                    oscillator.connect(gainNode);
-                    gainNode.connect(destination);
-                    gainNode.gain.value = 0.001; // 極低音量
-                    oscillator.frequency.value = 440;
-                    oscillator.start();
-                    
-                    // 建立 MediaRecorder
-                    const mediaRecorder = new MediaRecorder(destination.stream, { mimeType });
-                    const audioChunks = [];
-                    
-                    mediaRecorder.ondataavailable = (event) => {
-                        if (event.data.size > 0) {
-                            audioChunks.push(event.data);
-                        }
-                    };
-                    
-                    // 開始錄製
-                    mediaRecorder.start();
-                    
-                    // 模擬錄製時間（根據腳本長度）
-                    let totalDuration = 0;
-                    for (const item of this.speechQueue) {
-                        if (item.type === 'speech') {
-                            totalDuration += item.text.length * 100; // 估算朗讀時間
-                        } else if (item.type === 'pause') {
-                            totalDuration += item.duration;
-                        }
-                    }
-                    
-                    // 最少錄製 2 秒
-                    totalDuration = Math.max(totalDuration, 2000);
-                    
-                    console.log('預估錄製時間:', totalDuration, 'ms');
-                    
-                    // 等待錄製時間
-                    await new Promise(resolve => setTimeout(resolve, totalDuration));
-                    
-                    // 停止錄製
-                    mediaRecorder.stop();
-                    oscillator.stop();
-                    
-                    // 等待錄製完成
-                    await new Promise((resolve) => {
-                        mediaRecorder.onstop = () => {
-                            if (audioChunks.length > 0) {
-                                const audioBlob = new Blob(audioChunks, { type: mimeType });
-                                this.currentBlob = audioBlob;
-                                console.log('音頻錄製完成，檔案大小:', audioBlob.size, 'bytes');
-                            } else {
-                                console.log('錄製失敗，沒有音頻數據');
-                            }
-                            resolve();
-                        };
-                    });
-                    
-                    // 關閉音頻上下文
-                    audioContext.close();
-                    
-                } catch (error) {
-                    console.error('音頻錄製錯誤:', error);
-                    // 如果錄製失敗，仍然允許播放
-                    console.log('音頻錄製功能不可用，但語音播放仍然可用');
-                }
+                return voices[0];
             }
             
             async playBrowserSpeech() {
-                return new Promise((resolve, reject) => {
-                    console.log('開始播放語音序列，共', this.speechQueue.length, '個項目');
-                    
-                    // 確保語音合成已停止
+                return new Promise((resolve) => {
                     speechSynthesis.cancel();
                     
                     let currentIndex = 0;
-                    let isPlaying = true;
                     
                     const playNext = () => {
-                        if (!isPlaying || currentIndex >= this.speechQueue.length) {
-                            console.log('語音播放完成');
-                            if (this.currentAudio && this.currentAudio.onended) {
-                                this.currentAudio.onended();
-                            }
+                        if (currentIndex >= this.speechQueue.length) {
                             resolve();
                             return;
                         }
                         
-                        const item = this.speechQueue[currentIndex];
-                        console.log(`播放項目 ${currentIndex + 1}:`, item.type, item.type === 'speech' ? item.text : `${item.duration/1000}秒`);
-                        currentIndex++;
+                        const item = this.speechQueue[currentIndex++];
                         
                         if (item.type === 'speech') {
-                            // 創建新的語音實例以避免重複使用問題
                             const utterance = new SpeechSynthesisUtterance(item.text);
+                            utterance.voice = item.utterance.voice;
+                            utterance.lang = item.utterance.lang;
+                            utterance.rate = item.utterance.rate;
+                            utterance.pitch = item.utterance.pitch;
+                            utterance.volume = item.utterance.volume;
                             
-                            // 重新確認語音和語言設定
-                            const voices = speechSynthesis.getVoices();
-                            let correctVoice = item.utterance.voice;
-                            let correctLang = item.utterance.lang;
+                            utterance.onend = () => setTimeout(playNext, 100);
+                            utterance.onerror = () => setTimeout(playNext, 100);
                             
-                            // 如果原始語音不存在，重新選擇
-                            if (correctVoice && !voices.find(v => v.name === correctVoice.name)) {
-                                console.log('原始語音不存在，重新選擇:', correctVoice.name);
-                                
-                                // 根據語言代碼重新選擇語音
-                                if (correctLang.startsWith('zh')) {
-                                    correctVoice = voices.find(voice => 
-                                        voice.lang.includes('zh-TW') || voice.lang.includes('zh')
-                                    ) || voices[0];
-                                    correctLang = 'zh-TW';
-                                } else if (correctLang.startsWith('en')) {
-                                    correctVoice = voices.find(voice => 
-                                        voice.lang.startsWith('en-US') || voice.lang.startsWith('en')
-                                    ) || voices[0];
-                                    correctLang = 'en-US';
-                                }
-                            }
-                            
-                            utterance.voice = correctVoice;
-                            utterance.lang = correctLang;
-                            utterance.rate = item.utterance.rate || 0.9;
-                            utterance.pitch = item.utterance.pitch || 1.0;
-                            utterance.volume = item.utterance.volume || 1.0;
-                            
-                            utterance.onstart = () => {
-                                console.log('開始朗讀:', item.text.substring(0, 20) + '...');
-                            };
-                            
-                            utterance.onend = () => {
-                                console.log('朗讀完成:', item.text.substring(0, 20) + '...');
-                                // 清理語音合成狀態，確保下一段語音正確
-                                speechSynthesis.cancel();
-                                setTimeout(() => {
-                                    // 確保語音合成完全停止後再繼續
-                                    if (speechSynthesis.speaking) {
-                                        speechSynthesis.cancel();
-                                    }
-                                    setTimeout(playNext, 100);
-                                }, 300);
-                            };
-                            
-                            utterance.onerror = (error) => {
-                                console.error('語音播放錯誤:', error, '文字:', item.text);
-                                // 發生錯誤時繼續下一個，而不是停止整個播放
-                                setTimeout(playNext, 100);
-                            };
-                            
-                            // 檢查語音合成是否可用
-                            if (speechSynthesis.paused) {
-                                speechSynthesis.resume();
-                            }
-                            
-                            try {
-                                speechSynthesis.speak(utterance);
-                                console.log('已發送語音指令');
-                            } catch (error) {
-                                console.error('語音播放失敗:', error);
-                                setTimeout(playNext, 100);
-                            }
-                            
+                            speechSynthesis.speak(utterance);
                         } else if (item.type === 'pause') {
-                            console.log('暫停', item.duration/1000, '秒');
                             setTimeout(playNext, item.duration);
                         }
                     };
                     
-                    // 設定停止函數
-                    this.currentAudio.pause = () => {
-                        isPlaying = false;
-                        speechSynthesis.cancel();
-                        console.log('語音播放已停止');
-                    };
-                    
-                    // 開始播放
                     playNext();
                 });
             }
             
-            displayResults() {
-                this.resultSection.style.display = 'block';
-                this.showMessage('語音檔案生成完成！您可以播放試聽或下載檔案。', 'success');
-                this.resultSection.scrollIntoView({ behavior: 'smooth' });
+            generateTextFile() {
+                let content = '🎯 英文口說出題系統 - 語音腳本\n';
+                content += '='.repeat(50) + '\n\n';
+                content += `生成時間：${new Date().toLocaleString('zh-TW')}\n`;
+                content += `模式：${this.currentMode === 'premium' ? '高品質模式' : '免費模式'}\n\n`;
+                
+                this.scriptItems.forEach((item, index) => {
+                    if (item.type === 'text') {
+                        content += `${index + 1}. 📢 ${item.text}\n`;
+                        content += `   語音：${item.voice}\n\n`;
+                    } else {
+                        content += `${index + 1}. ⏸️ 暫停 ${item.duration} 秒\n\n`;
+                    }
+                });
+                
+                this.currentBlob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            }
+            
+            showResults() {
+                document.getElementById('resultSection').style.display = 'block';
+                document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
             }
             
             playAudio() {
@@ -1597,168 +1101,38 @@
                     return;
                 }
                 
-                console.log('播放按鈕被點擊，模式:', this.isPremiumMode ? '高品質' : '免費');
+                const playBtn = document.getElementById('playBtn');
+                playBtn.textContent = '🔊 播放中...';
+                playBtn.disabled = true;
                 
-                this.playBtn.textContent = '🔊 播放中...';
-                this.playBtn.disabled = true;
+                const resetButton = () => {
+                    playBtn.textContent = '▶️ 播放完整語音';
+                    playBtn.disabled = false;
+                };
                 
-                if (this.isPremiumMode && this.currentAudio.play && typeof this.currentAudio.play === 'function') {
-                    // 高品質模式：播放 MP3 檔案
-                    console.log('播放 MP3 檔案');
-                    
-                    this.currentAudio.currentTime = 0;
-                    
-                    const playPromise = this.currentAudio.play();
-                    if (playPromise !== undefined) {
-                        playPromise.then(() => {
-                            console.log('MP3 播放開始');
-                        }).catch(error => {
-                            console.error('MP3 播放失敗:', error);
-                            this.playBtn.textContent = '▶️ 播放完整語音';
-                            this.playBtn.disabled = false;
-                            this.showMessage('MP3 播放失敗，請檢查音頻檔案', 'error');
-                        });
-                    }
-                    
-                    this.currentAudio.onended = () => {
-                        console.log('MP3 播放結束');
-                        this.playBtn.textContent = '▶️ 播放完整語音';
-                        this.playBtn.disabled = false;
-                    };
-                    
-                    this.currentAudio.onerror = (error) => {
-                        console.error('MP3 播放錯誤:', error);
-                        this.playBtn.textContent = '▶️ 播放完整語音';
-                        this.playBtn.disabled = false;
-                        this.showMessage('播放失敗，請重新生成語音檔案', 'error');
-                    };
-                    
+                if (this.currentMode === 'premium') {
+                    this.currentAudio.onended = resetButton;
+                    this.currentAudio.onerror = resetButton;
+                    this.currentAudio.play();
                 } else {
-                    // 免費模式：使用瀏覽器語音合成
-                    console.log('使用瀏覽器語音合成播放');
-                    
-                    // 檢查語音隊列
-                    if (!this.speechQueue || this.speechQueue.length === 0) {
-                        console.error('語音隊列為空');
-                        this.playBtn.textContent = '▶️ 播放完整語音';
-                        this.playBtn.disabled = false;
-                        this.showMessage('語音隊列為空，請重新生成', 'error');
-                        return;
-                    }
-                    
-                    // 設定播放完成回調
-                    this.currentAudio.onended = () => {
-                        console.log('瀏覽器語音播放結束');
-                        this.playBtn.textContent = '▶️ 播放完整語音';
-                        this.playBtn.disabled = false;
-                    };
-                    
-                    this.currentAudio.onerror = (error) => {
-                        console.error('瀏覽器語音播放錯誤:', error);
-                        this.playBtn.textContent = '▶️ 播放完整語音';
-                        this.playBtn.disabled = false;
-                        this.showMessage('語音播放失敗，請檢查瀏覽器設定', 'error');
-                    };
-                    
-                    // 開始播放
-                    this.currentAudio.play().catch(error => {
-                        console.error('播放啟動失敗:', error);
-                        this.playBtn.textContent = '▶️ 播放完整語音';
-                        this.playBtn.disabled = false;
-                        this.showMessage(`播放失敗：${error.message}`, 'error');
+                    this.currentAudio.play().then(resetButton).catch((error) => {
+                        console.error('播放失敗:', error);
+                        resetButton();
                     });
                 }
             }
             
             downloadAudio() {
-                if (this.currentBlob) {
-                    const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-                    let fileName, message;
-                    
-                    if (this.isPremiumMode) {
-                        // 高品質模式：下載 MP3
-                        const isMP3 = this.currentBlob.type === 'audio/mpeg';
-                        const extension = isMP3 ? 'mp3' : 'txt';
-                        fileName = `語音腳本_高品質_${timestamp}.${extension}`;
-                        message = isMP3 
-                            ? '🎵 高品質 MP3 檔案下載開始！這是您的完整語音腳本檔案。'
-                            : '📄 文本檔案下載開始！如需 MP3 檔案，請設定 Google Cloud API Key。';
-                    } else {
-                        // 免費模式：下載錄製的音頻檔案
-                        const isAudio = this.currentBlob.type.startsWith('audio/');
-                        if (isAudio) {
-                            fileName = `語音腳本_免費版_${timestamp}.webm`;
-                            message = '🎵 音頻檔案下載開始！這是使用瀏覽器語音錄製的檔案。';
-                        } else {
-                            fileName = `語音腳本_免費版_${timestamp}.txt`;
-                            message = '📄 文本檔案下載開始！';
-                        }
-                    }
-                    
-                    const url = URL.createObjectURL(this.currentBlob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = fileName;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                    
-                    this.showMessage(message, 'success');
-                    
-                } else if (!this.isPremiumMode && this.scriptItems.length > 0) {
-                    // 備用方案：生成腳本文字檔案
-                    this.generateScriptTextFile();
-                } else {
+                if (!this.currentBlob) {
                     this.showMessage('請先生成語音檔案', 'error');
-                }
-            }
-            
-            generateScriptTextFile() {
-                // 建立詳細的腳本內容
-                let scriptContent = '🎯 英文口說出題系統 - 語音腳本\n';
-                scriptContent += '=' .repeat(50) + '\n\n';
-                scriptContent += `生成時間：${new Date().toLocaleString('zh-TW')}\n`;
-                scriptContent += `模式：免費模式 (瀏覽器內建語音)\n`;
-                scriptContent += `腳本項目數量：${this.scriptItems.length}\n\n`;
-                
-                scriptContent += '📝 完整腳本內容：\n';
-                scriptContent += '-'.repeat(30) + '\n\n';
-                
-                let itemNumber = 1;
-                for (const item of this.scriptItems) {
-                    if (item.type === 'text') {
-                        scriptContent += `${itemNumber}. 📢 文字朗讀\n`;
-                        scriptContent += `   內容：${item.text}\n`;
-                        scriptContent += `   語音：${item.voice}\n\n`;
-                        itemNumber++;
-                    } else if (item.type === 'pause') {
-                        scriptContent += `${itemNumber}. ⏸️ 暫停時間\n`;
-                        scriptContent += `   時長：${item.duration} 秒\n\n`;
-                        itemNumber++;
-                    }
+                    return;
                 }
                 
-                scriptContent += '\n' + '='.repeat(50) + '\n';
-                scriptContent += '💡 使用說明：\n';
-                scriptContent += '• 此檔案包含完整的語音腳本內容\n';
-                scriptContent += '• 免費模式使用瀏覽器內建語音引擎\n';
-                scriptContent += '• 如需高品質 MP3 檔案，請切換到高品質模式\n';
-                scriptContent += '• 可將此腳本匯入其他語音合成軟體使用\n\n';
-                
-                scriptContent += '🔗 相關連結：\n';
-                scriptContent += '• Google Cloud Text-to-Speech: https://cloud.google.com/text-to-speech\n';
-                scriptContent += '• Microsoft Speech Platform: https://www.microsoft.com/cognitive-services/speech\n';
-                scriptContent += '• Amazon Polly: https://aws.amazon.com/polly/\n\n';
-                
-                scriptContent += `檔案生成於：${new Date().toISOString()}\n`;
-                
-                // 建立並下載檔案
                 const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-                const fileName = `語音腳本_免費版_${timestamp}.txt`;
+                const extension = this.currentMode === 'premium' ? 'mp3' : 'txt';
+                const fileName = `語音腳本_${this.currentMode === 'premium' ? '高品質' : '免費版'}_${timestamp}.${extension}`;
                 
-                const blob = new Blob([scriptContent], { type: 'text/plain;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
+                const url = URL.createObjectURL(this.currentBlob);
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = fileName;
@@ -1767,38 +1141,31 @@
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
                 
-                this.showMessage(`
-                    📄 <strong>腳本文字檔案下載完成！</strong><br><br>
-                    ✅ 檔案包含完整的語音腳本內容<br>
-                    ✅ 可匯入其他語音合成軟體使用<br>
-                    ✅ 包含詳細的設定參數和使用說明<br><br>
-                    💡 <strong>提示：</strong>如需真正的 MP3 音頻檔案，請切換到高品質模式並設定 Google Cloud API Key
-                `, 'success');
+                this.showMessage(`檔案下載開始：${fileName}`, 'success');
             }
             
             showMessage(message, type) {
-                this.statusMessage.innerHTML = `<div class="${type}">${message}</div>`;
+                const statusMessage = document.getElementById('statusMessage');
+                statusMessage.innerHTML = `<div class="message ${type}">${message}</div>`;
                 
-                // API 設定錯誤訊息不自動消失，其他訊息 8 秒後消失
-                if (type === 'success' || (type === 'error' && !message.includes('API 尚未啟用'))) {
+                if (type === 'success') {
                     setTimeout(() => {
-                        this.statusMessage.innerHTML = '';
-                    }, 8000);
+                        statusMessage.innerHTML = '';
+                    }, 5000);
                 }
             }
         }
         
-        // 全域變數供 HTML 事件使用
-        let generator;
+        // 初始化
+        let speechGen;
         
-        // 頁面載入完成後初始化
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
-                generator = new ScriptBasedSpeechGenerator();
+                speechGen = new SpeechGenerator();
             });
         } else {
-            generator = new ScriptBasedSpeechGenerator();
+            speechGen = new SpeechGenerator();
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994f638ae1a94a3c',t:'MTc2MTUzODcwMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994f72fb86cca9a9',t:'MTc2MTUzOTMzMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
